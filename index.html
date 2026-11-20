@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuración y Recuperación de Contraseña en un Router Cisco Packet Tracer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ==========================================================================
+       1. SOBRIA PALETA TÉCNICA / ACADÉMICA (SIN NEÓN)
+       ========================================================================== */
+    :root {
+      --bg-page: #edf1f5;
+      --bg-paper: #ffffff;
+      --bg-subtle: #f5f7fa;
+      --bg-muted: #e9eef4;
+
+      --text-main: #1e293b;
+      --text-sec: #475569;
+      --text-muted: #64748b;
+
+      --border: #d4dce6;
+      --border-dark: #b3c0cf;
+
+      /* Colores clásicos de redes / Cisco Packet Tracer */
+      --cisco-blue: #1b5a8a;
+      --cisco-blue-dark: #134266;
+      --cisco-blue-soft: #e7f1f8;
+      --console-blue: #2f95b8;
+      --console-soft: #e6f4f8;
+
+      --green: #2e7d32;
+      --green-soft: #e8f5e9;
+      --amber: #b45309;
+      --amber-soft: #fef3c7;
+      --red: #c62828;
+      --red-soft: #fdecea;
+
+      /* Ventana estilo Packet Tracer (clásico escritorio Windows/Qt) */
+      --pt-chrome: #e3e8ee;
+      --pt-bar: #2c4760;
+      --pt-tab-bg: #f1f4f8;
+      --pt-term-bg: #12161c;
+      --pt-term-fg: #e5e9f0;
+
+      --radius: 10px;
+      --shadow-paper: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --shadow-modal: 0 18px 46px rgba(15, 23, 42, 0.28);
+
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 18px 14px 44px;
+    }
+
+    code, pre, kbd { font-family: var(--font-mono); }
+    button { font-family: inherit; cursor: pointer; }
+
+    kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: #fff;
+      color: var(--text-main);
+      border: 1px solid var(--border-dark);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+    }
+
+    /* ==========================================================================
+       2. CONTENEDOR DE INFOGRAFÍA (HOJA ÚNICA)
+       ========================================================================== */
+    .infographic {
+      max-width: 1240px;
+      margin: 0 auto;
+      background: var(--bg-paper);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-paper);
+      overflow: hidden;
+    }
+
+    /* Encabezado Sobrio de Infografía */
+    .header-banner {
+      background: var(--cisco-blue);
+      color: #ffffff;
+      padding: 20px 26px;
+      border-bottom: 4px solid var(--cisco-blue-dark);
+    }
+
+    .header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-lab {
+      width: 46px;
+      height: 46px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #cfe3f2;
+      font-weight: 600;
+    }
+
+    .header-banner h1 {
+      font-size: clamp(1.2rem, 2.3vw, 1.72rem);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .h-btn {
+      padding: 8px 13px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: background 150ms ease;
+    }
+
+    .h-btn:hover { background: rgba(255, 255, 255, 0.22); }
+    .h-btn.solid { background: #ffffff; color: var(--cisco-blue-dark); border-color: #ffffff; }
+    .h-btn.solid:hover { background: #eef4f9; }
+
+    /* Barra de Fases de la Infografía */
+    .phase-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .phase-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 11px;
+      border-radius: 8px;
+      background: rgba(12, 34, 54, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #e2edf6;
+      text-decoration: none;
+      font-size: 0.78rem;
+    }
+
+    .phase-pill.done { background: rgba(46, 125, 50, 0.45); border-color: #81c784; color: #fff; }
+    .phase-pill.active { background: rgba(255, 255, 255, 0.16); border-color: #ffffff; color: #fff; }
+
+    .p-idx {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.18);
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.75rem;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .phase-pill.done .p-idx { background: #4caf50; color: #fff; }
+
+    .p-title { font-weight: 700; line-height: 1.2; }
+    .p-meta { font-size: 0.68rem; color: #cfe3f2; font-family: var(--font-mono); }
+
+    /* Cuerpo de la Infografía */
+    .body-flow {
+      padding: 22px 24px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .flow-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: -8px 0;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .flow-divider::before, .flow-divider::after {
+      content: "";
+      flex: 1;
+      border-top: 1.5px dashed var(--border-dark);
+    }
+
+    /* Bloques / Paneles de Infografía */
+    .section-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-subtle);
+      overflow: hidden;
+    }
+
+    .section-bar {
+      background: var(--bg-paper);
+      border-bottom: 1px solid var(--border);
+      padding: 13px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sec-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 5px;
+      background: var(--cisco-blue-soft);
+      color: var(--cisco-blue-dark);
+      border: 1px solid #bcd4e6;
+    }
+
+    .section-bar h2 { font-size: 1.02rem; font-weight: 800; }
+    .section-bar p { font-size: 0.79rem; color: var(--text-muted); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-dark);
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 0.77rem;
+      font-weight: 600;
+      transition: background 140ms ease, border-color 140ms ease;
+    }
+    .btn:hover:not(:disabled) { background: var(--bg-muted); border-color: var(--cisco-blue); }
+    .btn:disabled { opacity: 0.48; cursor: not-allowed; }
+    .btn.primary { background: var(--cisco-blue); border-color: var(--cisco-blue-dark); color: #fff; }
+    .btn.primary:hover:not(:disabled) { background: var(--cisco-blue-dark); }
+    .btn.success { background: var(--green); border-color: #1b5e20; color: #fff; }
+    .btn.success:hover:not(:disabled) { background: #1b5e20; }
+    .btn.amber { background: var(--amber); border-color: #92400e; color: #fff; }
+
+    /* ==========================================================================
+       3. FASE 1: MESA INTERACTIVA ESTILO PACKET TRACER
+       ========================================================================== */
+    .pt-workbench {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+    }
+
+    .pt-dock {
+      background: var(--bg-paper);
+      border-right: 1px solid var(--border);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .dock-heading {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-sec);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    /* Selector de Herramienta Activa */
+    .tool-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tool-btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-subtle);
+      text-align: left;
+      color: var(--text-main);
+      transition: all 140ms ease;
+    }
+    .tool-btn:hover { border-color: var(--cisco-blue); }
+    .tool-btn.active {
+      border-color: var(--cisco-blue);
+      background: var(--cisco-blue-soft);
+      box-shadow: inset 3px 0 0 var(--cisco-blue);
+    }
+
+    .swatch {
+      width: 24px;
+      height: 4px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Paleta de Dispositivos con Iconos Realistas */
+    .dev-palette {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .pal-card {
+      border: 1.5px dashed var(--border-dark);
+      border-radius: 8px;
+      background: var(--bg-subtle);
+      padding: 8px 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      cursor: grab;
+      user-select: none;
+      transition: all 140ms ease;
+    }
+    .pal-card:hover:not(.placed) {
+      border-color: var(--cisco-blue);
+      background: var(--cisco-blue-soft);
+    }
+    .pal-card.placed {
+      opacity: 0.45;
+      border-style: solid;
+      border-color: var(--green);
+      pointer-events: none;
+    }
+    .pal-name { font-size: 0.71rem; font-weight: 700; line-height: 1.15; }
+    .pal-sub { font-size: 0.62rem; font-family: var(--font-mono); color: var(--text-muted); }
+
+    .cable-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+    .cable-list li {
+      padding: 4px 8px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+    }
+    .cable-list li.ok {
+      border-color: #a5d6a7;
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    /* Lienzo Blanco tipo Cisco Packet Tracer */
+    .pt-canvas-area {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .canvas-tip {
+      background: var(--bg-paper);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--text-sec);
+    }
+
+    .pt-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 7.6;
+      min-height: 360px;
+      background: #ffffff;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      overflow: hidden;
+      background-image:
+        linear-gradient(to right, #f1f4f8 1px, transparent 1px),
+        linear-gradient(to bottom, #f1f4f8 1px, transparent 1px);
+      background-size: 28px 28px;
+      touch-action: none;
+    }
+
+    .pt-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Etiquetas de Subred igual a logica.jpeg */
+    .subnet-box {
+      position: absolute;
+      background: #f5f7fb;
+      border: 1px solid #d7dfe9;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+      text-align: center;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .subnet-box span { display: block; font-weight: 500; font-size: 0.7rem; color: var(--text-sec); }
+
+    .lab-caption-box {
+      position: absolute;
+      left: 11%;
+      bottom: 8%;
+      background: #f5f7fb;
+      border: 1px solid #d7dfe9;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-main);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Nodos de Dispositivos sobre el Lienzo */
+    .stage-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 114px;
+      padding: 7px 6px;
+      border-radius: 9px;
+      border: 2px dashed #b9c7d6;
+      background: rgba(248, 250, 252, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      text-align: center;
+      z-index: 3;
+      user-select: none;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .stage-node.drag-over {
+      border-color: var(--cisco-blue);
+      background: var(--cisco-blue-soft);
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+
+    .stage-node.placed {
+      border: 1.5px solid transparent;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .stage-node.placed:hover {
+      background: rgba(231, 241, 248, 0.85);
+      border-color: var(--cisco-blue);
+    }
+
+    .stage-node.wire-mode.placed { cursor: crosshair; }
+    .stage-node.wire-origin {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .stage-node.powered-off svg { filter: grayscale(1) opacity(0.55); }
+
+    .node-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1px 5px;
+      border-radius: 4px;
+      line-height: 1.2;
+    }
+
+    .node-sub-ip {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.88);
+      padding: 0 4px;
+      border-radius: 3px;
+    }
+    .node-sub-ip.configured { color: var(--green); font-weight: 700; }
+
+    .node-action-hint {
+      font-size: 0.61rem;
+      font-weight: 700;
+      color: var(--cisco-blue);
+      opacity: 0;
+      transition: opacity 150ms ease;
+    }
+    .stage-node.placed:hover .node-action-hint { opacity: 1; }
+
+    /* ==========================================================================
+       4. FASE 2: TABLERO DE ESTADO DE LA INFOGRAFÍA (IPs + MEMORIA + MISION)
+       ========================================================================== */
+    .status-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.15fr;
+      gap: 14px;
+    }
+
+    .info-panel {
+      background: var(--bg-paper);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .info-panel h3 {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--cisco-blue-dark);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ip-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.74rem;
+    }
+    .ip-table th, .ip-table td {
+      padding: 6px 7px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .ip-table th { color: var(--text-muted); font-weight: 700; font-size: 0.68rem; text-transform: uppercase; }
+    .ip-table td { font-family: var(--font-mono); }
+
+    .tag-ok { color: var(--green); background: var(--green-soft); padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.68rem; }
+    .tag-wait { color: var(--red); background: var(--red-soft); padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.68rem; }
+    .tag-warn { color: var(--amber); background: var(--amber-soft); padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.68rem; }
+
+    /* Flujo Memoria NVRAM / RAM */
+    .mem-row {
+      display: grid;
+      grid-template-columns: 1fr 30px 1fr;
+      align-items: center;
+      gap: 6px;
+    }
+    .mem-card {
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+      background: var(--bg-subtle);
+    }
+    .mem-card.ok { border-color: var(--green); background: var(--green-soft); }
+    .mem-card.bypass { border-color: var(--amber); border-style: dashed; background: var(--amber-soft); }
+    .mem-k { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 800; color: var(--text-muted); }
+    .mem-v { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; margin-top: 2px; }
+
+    .reg-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+    }
+    .reg-code {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .mission-ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.73rem;
+    }
+    .mission-ul li {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-sec);
+    }
+    .mission-ul li.now { border-color: var(--cisco-blue); background: var(--cisco-blue-soft); color: var(--text-main); font-weight: 700; }
+    .mission-ul li.done { border-color: #a5d6a7; background: var(--green-soft); color: var(--green); }
+    .m-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      display: grid;
+      place-items: center;
+      font-size: 0.64rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       5. FASE 3: INFOGRAFÍA VISUAL DE COMANDOS + DECODIFICADOR + CAPTURAS
+       ========================================================================== */
+    .steps-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .step-tile {
+      background: var(--bg-paper);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .st-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .st-badge {
+      font-family: var(--font-mono);
+      font-size: 0.69rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--cisco-blue-soft);
+      color: var(--cisco-blue-dark);
+    }
+    .st-badge.amber { background: var(--amber-soft); color: var(--amber); }
+    .st-badge.green { background: var(--green-soft); color: var(--green); }
+
+    .copy-btn {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border: 1px solid var(--border-dark);
+      background: var(--bg-subtle);
+      color: var(--text-sec);
+    }
+    .copy-btn:hover { background: var(--cisco-blue); border-color: var(--cisco-blue); color: #fff; }
+    .copy-btn.copied { background: var(--green); border-color: var(--green); color: #fff; }
+
+    .step-tile h3 { font-size: 0.85rem; font-weight: 800; line-height: 1.25; }
+    .step-tile p { font-size: 0.75rem; color: var(--text-muted); }
+
+    .cmd-pre {
+      background: var(--pt-term-bg);
+      color: var(--pt-term-fg);
+      border-radius: 7px;
+      padding: 9px 10px;
+      font-size: 0.72rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      margin-top: auto;
+    }
+    .c-pr { color: #8ab4f8; font-weight: 700; }
+    .c-rm { color: #f6c177; font-weight: 700; }
+    .c-cm { color: #9aa5b1; }
+    .c-ok { color: #81c995; }
+
+    .ref-bottom {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 14px;
+      padding: 0 16px 16px;
+    }
+
+    .bit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .nib {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+      font-family: var(--font-mono);
+      background: var(--bg-subtle);
+    }
+    .nib.click {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+      cursor: pointer;
+    }
+    .nib .nh { font-size: 1.15rem; font-weight: 800; }
+    .nib .nb { font-size: 0.66rem; color: var(--text-sec); }
+
+    .cap-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .cap-card {
+      border: 1px solid var(--border-dark);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: zoom-in;
+      background: #fff;
+    }
+    .cap-card img { width: 100%; height: 112px; object-fit: cover; display: block; }
+    .cap-lbl {
+      padding: 6px 8px;
+      background: var(--bg-subtle);
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ==========================================================================
+       6. VENTANA SIMULADA DE CISCO PACKET TRACER (MODALES POR DISPOSITIVO)
+       ========================================================================== */
+    .pt-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 2000;
+    }
+    .pt-modal-backdrop.open { display: flex; }
+
+    .pt-window {
+      width: 100%;
+      max-width: 780px;
+      max-height: 90vh;
+      background: #f4f6f9;
+      border: 1px solid #8a9bb0;
+      border-radius: 8px;
+      box-shadow: var(--shadow-modal);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pt-titlebar {
+      background: var(--pt-bar);
+      color: #ffffff;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .pt-close {
+      background: #c62828;
+      color: #fff;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+    .pt-close:hover { background: #a71d1d; }
+
+    .pt-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 6px 10px 0;
+      background: var(--pt-chrome);
+      border-bottom: 1px solid #bfc9d4;
+    }
+
+    .pt-tab {
+      padding: 6px 14px;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 5px 5px 0 0;
+      background: transparent;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-sec);
+    }
+    .pt-tab.active {
+      background: #ffffff;
+      border-color: #bfc9d4;
+      color: var(--text-main);
+      margin-bottom: -1px;
+      padding-bottom: 7px;
+    }
+
+    .pt-body {
+      padding: 16px;
+      background: #ffffff;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* Vista Física del Router en Packet Tracer (Backplate + Switch de Energía) */
+    .router-chassis {
+      background: #2f353d;
+      border: 3px solid #1d2126;
+      border-radius: 8px;
+      padding: 18px;
+      color: #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .chassis-ports {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .port-jack {
+      background: #1b1f24;
+      border: 1.5px solid #525d6b;
+      border-radius: 5px;
+      padding: 8px 10px;
+      text-align: center;
+      min-width: 78px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+    }
+    .port-jack.console { border-color: var(--console-blue); }
+    .port-hole {
+      width: 24px;
+      height: 18px;
+      margin: 4px auto 0;
+      background: #0b0d10;
+      border: 1px solid #6b7785;
+      border-radius: 2px;
+      position: relative;
+    }
+    .port-led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+      background: #64748b;
+    }
+    .port-led.on { background: #4caf50; }
+    .port-led.down { background: #ef5350; }
+
+    /* Interruptor Físico ON/OFF */
+    .power-unit {
+      background: #1f242b;
+      border: 1px solid #4c5663;
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rocker-switch {
+      width: 44px;
+      height: 26px;
+      border-radius: 4px;
+      border: 2px solid #758293;
+      background: #2e7d32;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+    }
+    .rocker-switch.off { background: #c62828; }
+
+    /* Consola CLI estilo Cisco Packet Tracer */
+    .pt-cli-wrap {
+      border: 1px solid #9aa8b8;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: var(--pt-term-bg);
+    }
+
+    .pt-cli-toolbar {
+      background: #1f2630;
+      padding: 8px 12px;
+      border-bottom: 1px solid #303a47;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #cbd5e1;
+      font-size: 0.74rem;
+      font-family: var(--font-mono);
+    }
+
+    .pt-cli-out {
+      height: 290px;
+      overflow-y: auto;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.79rem;
+      line-height: 1.58;
+      color: var(--pt-term-fg);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .l-sys { color: #9aa5b1; }
+    .l-ok { color: #81c995; }
+    .l-warn { color: #f6c177; }
+    .l-err { color: #f28b82; }
+    .l-cmd { color: #ffffff; font-weight: 600; }
+
+    .pt-cli-quick {
+      background: #181e27;
+      border-top: 1px solid #2b3441;
+      padding: 7px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+    .quick-cmd {
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #48566a;
+      background: #253040;
+      color: #dbeafe;
+    }
+    .quick-cmd:hover { background: var(--cisco-blue); border-color: var(--cisco-blue); color: #fff; }
+
+    .pt-cli-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      background: #0b0e13;
+      border-top: 1px solid #2b3441;
+      font-family: var(--font-mono);
+      font-size: 0.81rem;
+    }
+    .pt-cli-prompt { color: #8ab4f8; font-weight: 700; white-space: nowrap; }
+    .pt-cli-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.81rem;
+    }
+
+    /* Escritorio Packet Tracer (PC y Laptop) */
+    .pt-desktop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      padding: 12px 4px;
+    }
+
+    .desktop-app {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 10px;
+      background: var(--bg-subtle);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+      color: var(--text-main);
+    }
+    .desktop-app:hover { border-color: var(--cisco-blue); background: var(--cisco-blue-soft); }
+    .desktop-app strong { font-size: 0.8rem; }
+    .desktop-app span { font-size: 0.69rem; color: var(--text-muted); }
+
+    /* Formularios de IP (PC e Impresora) */
+    .ip-form {
+      display: grid;
+      gap: 11px;
+      max-width: 460px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 155px 1fr;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+    .form-row label { font-weight: 600; color: var(--text-sec); }
+    .form-row input, .form-row select {
+      padding: 7px 10px;
+      border: 1px solid var(--border-dark);
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-main);
+      background: #fff;
+    }
+    .form-row input:focus { outline: 2px solid var(--cisco-blue-soft); border-color: var(--cisco-blue); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: #1e293b;
+      color: #ffffff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+      transform: translateY(90px);
+      opacity: 0;
+      transition: all 220ms ease;
+      z-index: 3000;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1020px) {
+      .pt-workbench, .status-grid, .ref-bottom { grid-template-columns: 1fr; }
+      .pt-dock { border-right: none; border-bottom: 1px solid var(--border); }
+      .steps-grid { grid-template-columns: repeat(2, 1fr); }
+      .phase-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      body { padding: 8px 6px 26px; }
+      .header-banner, .body-flow { padding: 14px; }
+      .steps-grid, .phase-strip, .pt-desktop-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .stage-node { width: 84px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="infographic">
+    <!-- ================= ENCABEZADO DE INFOGRAFÍA ================= -->
+    <header class="header-banner">
+      <div class="header-row">
+        <div class="header-title-wrap">
+          <div class="badge-lab">R11</div>
+          <div>
+            <div class="kicker">Simulación Completa estilo Cisco Packet Tracer</div>
+            <h1>Configuración desde Cero y Recuperación de Contraseña en Router</h1>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="h-btn solid" id="autoAllBtn">▶ Auto-Simular Todo</button>
+          <button class="h-btn" id="jumpRommonBtn">⏩ Ir directo a Recuperación ROMMON</button>
+          <button class="h-btn" id="openRs232Btn">ℹ Parámetros RS-232</button>
+        </div>
+      </div>
+
+      <div class="phase-strip">
+        <a href="#fase-1" class="phase-pill active" id="pPill1">
+          <div class="p-idx">01</div>
+          <div>
+            <div class="p-title">Armar Equipos y Cables</div>
+            <div class="p-meta" id="pMeta1">0/6 equipos · 0/5 cables</div>
+          </div>
+        </a>
+        <a href="#fase-1" class="phase-pill" id="pPill2">
+          <div class="p-idx">02</div>
+          <div>
+            <div class="p-title">IPs en PC, Impresora y Router</div>
+            <div class="p-meta" id="pMeta2">Clic en cada equipo</div>
+          </div>
+        </a>
+        <a href="#fase-2" class="phase-pill" id="pPill3">
+          <div class="p-idx">03</div>
+          <div>
+            <div class="p-title">Bloqueo + Break → ROMMON</div>
+            <div class="p-meta" id="pMeta3">confreg 0x2142 · boot</div>
+          </div>
+        </a>
+        <a href="#fase-3" class="phase-pill" id="pPill4">
+          <div class="p-idx">04</div>
+          <div>
+            <div class="p-title">Restaurar y Reload (0x2102)</div>
+            <div class="p-meta" id="pMeta4">startup → running · nueva clave</div>
+          </div>
+        </a>
+      </div>
+    </header>
+
+    <main class="body-flow">
+      <!-- ================= FASE 1: MESA PACKET TRACER ================= -->
+      <section class="section-box" id="fase-1">
+        <div class="section-bar">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span class="sec-tag">FASE 01 · SIMULADOR VISUAL</span>
+            <div>
+              <h2>Topología Interactiva: Arma los Equipos, Jala los Cables y Haz Clic para Configurarlos</h2>
+              <p>Al presionar <strong>PC-OFICINA</strong> o <strong>IMPRESORA</strong> configuras su IP; al presionar <strong>ROUTER</strong> o <strong>User/Windows → Terminal</strong> abres la consola Cisco.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;">
+            <button class="btn primary" id="autoWireBtn">⚡ Auto-Armar Cables</button>
+            <button class="btn success" id="pingBtn" disabled>📡 Probar Ping (PC → Impresora)</button>
+            <button class="btn" id="clearBoardBtn">↺ Vaciar Mesa</button>
+          </div>
+        </div>
+
+        <div class="pt-workbench">
+          <!-- Panel Izquierdo de Herramientas y Dispositivos -->
+          <aside class="pt-dock">
+            <div>
+              <div class="dock-heading"><span>1. Herramienta Activa</span></div>
+              <div class="tool-stack">
+                <button type="button" class="tool-btn active" data-tool="select">
+                  <span style="font-size:1rem;">🖱️</span>
+                  <div>
+                    <div style="font-size:0.76rem;font-weight:700;">Seleccionar / Abrir Equipo</div>
+                    <div style="font-size:0.66rem;color:var(--text-muted);">Clic en Router, Laptop, PC o Impresora</div>
+                  </div>
+                </button>
+                <button type="button" class="tool-btn" data-tool="ethernet">
+                  <span class="swatch" style="background:#1e293b;"></span>
+                  <div>
+                    <div style="font-size:0.76rem;font-weight:700;">Cable Directo (Ethernet)</div>
+                    <div style="font-size:0.66rem;color:var(--text-muted);">PC ↔ Sw1 ↔ Router ↔ Sw2 ↔ Impr.</div>
+                  </div>
+                </button>
+                <button type="button" class="tool-btn" data-tool="console">
+                  <span class="swatch" style="background:#2f95b8;"></span>
+                  <div>
+                    <div style="font-size:0.76rem;font-weight:700;">Cable de Consola (Celeste)</div>
+                    <div style="font-size:0.66rem;color:var(--text-muted);">User/Windows RS-232 ↔ Router Con</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="dock-heading">
+                <span>2. Dispositivos (Arrastra o clic)</span>
+                <span id="devCounter">0/6</span>
+              </div>
+              <div class="dev-palette" id="devPalette"></div>
+            </div>
+
+            <div>
+              <div class="dock-heading">
+                <span>3. Conexiones Requeridas</span>
+                <span id="cableCounter">0/5</span>
+              </div>
+              <ul class="cable-list" id="cableList">
+                <li data-link="pc-sw1">○ PC-OFICINA ↔ Switch1</li>
+                <li data-link="sw1-router">○ Switch1 ↔ ROUTER (G0/0/0)</li>
+                <li data-link="router-sw2">○ ROUTER (G0/0/1) ↔ Sw2 (Fa0/1)</li>
+                <li data-link="sw2-printer">○ Switch2 ↔ IMPRESORA</li>
+                <li data-link="laptop-router">○ User/Win (RS232) ↔ Router Con</li>
+              </ul>
+            </div>
+          </aside>
+
+          <!-- Lienzo Principal estilo Packet Tracer -->
+          <div class="pt-canvas-area">
+            <div class="canvas-tip">
+              <span id="canvasGuide"><strong>Paso 1:</strong> Arrastra o haz clic en los 6 dispositivos de la izquierda para colocarlos en el plano.</span>
+              <span style="font-family:var(--font-mono);font-size:0.71rem;">▲ Verde: Enlace UP &nbsp;|&nbsp; ▲ Rojo: Shutdown &nbsp;|&nbsp; ━ Celeste: Consola</span>
+            </div>
+
+            <div class="pt-stage" id="ptStage">
+              <div class="subnet-box" style="left:26%;top:9%;">10.0.0.0<span>255.0.0.0</span></div>
+              <div class="subnet-box" style="left:64%;top:9%;">11.0.0.0<span>255.0.0.0</span></div>
+              <div class="lab-caption-box">Recuperar la contraseña del ROUTER y configurar</div>
+
+              <svg class="pt-svg" id="ptSvg" viewBox="0 0 960 456" preserveAspectRatio="none">
+                <g id="linksLayer"></g>
+                <g id="portsLayer"></g>
+                <path id="wirePreview" d="" fill="none" stroke="#1b5a8a" stroke-width="3" stroke-dasharray="6 4" visibility="hidden"/>
+                <g id="pingEnvelope" visibility="hidden">
+                  <rect x="-12" y="-8" width="24" height="16" rx="2" fill="#f59e0b" stroke="#78350f" stroke-width="1.5"/>
+                  <polyline points="-12,-8 0,2 12,-8" fill="none" stroke="#78350f" stroke-width="1.5"/>
+                </g>
+              </svg>
+
+              <!-- 6 Posiciones Exactas del Laboratorio -->
+              <div class="stage-node" data-slot="pc" style="left:10%;top:36%;"></div>
+              <div class="stage-node" data-slot="sw1" style="left:31%;top:36%;"></div>
+              <div class="stage-node" data-slot="router" style="left:50%;top:57%;"></div>
+              <div class="stage-node" data-slot="sw2" style="left:69%;top:36%;"></div>
+              <div class="stage-node" data-slot="printer" style="left:90%;top:36%;"></div>
+              <div class="stage-node" data-slot="laptop" style="left:66%;top:84%;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="flow-divider">↓ Estado en Vivo del Laboratorio: Direccionamiento IP · Memorias NVRAM / RAM · Progreso ↓</div>
+
+      <!-- ================= FASE 2: PANEL DE ESTADO DE LA INFOGRAFÍA ================= -->
+      <section class="section-box" id="fase-2">
+        <div class="status-grid">
+          <!-- Tabla de IPs en Tiempo Real -->
+          <div class="info-panel">
+            <h3>
+              <span>Tabla de Direccionamiento IP</span>
+              <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);">En tiempo real</span>
+            </h3>
+            <table class="ip-table">
+              <thead>
+                <tr><th>Equipo / Interfaz</th><th>IP / Máscara</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PC-OFICINA</strong></td>
+                  <td id="tblPcIp">Sin IP</td>
+                  <td id="tblPcSt"><span class="tag-wait">Pendiente</span></td>
+                </tr>
+                <tr>
+                  <td><strong>ROUTER G0/0/0</strong></td>
+                  <td id="tblG0Ip">Sin IP</td>
+                  <td id="tblG0St"><span class="tag-wait">Shutdown</span></td>
+                </tr>
+                <tr>
+                  <td><strong>ROUTER G0/0/1</strong></td>
+                  <td id="tblG1Ip">Sin IP</td>
+                  <td id="tblG1St"><span class="tag-wait">Shutdown</span></td>
+                </tr>
+                <tr>
+                  <td><strong>IMPRESORA</strong></td>
+                  <td id="tblPrIp">Sin IP</td>
+                  <td id="tblPrSt"><span class="tag-wait">Pendiente</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;">
+              <button class="btn" id="quickOpenRouter">Abrir Router (CLI/Físico)</button>
+              <button class="btn" id="quickOpenLaptop">Abrir Laptop (Consola)</button>
+            </div>
+          </div>
+
+          <!-- Memoria Interna del Router y Registro -->
+          <div class="info-panel">
+            <h3>
+              <span>Arquitectura Interna del Router</span>
+              <span id="liveModeLbl" class="tag-wait">SIN ARMAR</span>
+            </h3>
+            <div class="mem-row">
+              <div class="mem-card" id="boxNvram">
+                <div class="mem-k">NVRAM</div>
+                <div class="mem-v" id="valNvram">Vacía</div>
+                <div style="font-size:0.64rem;color:var(--text-muted);">startup-config</div>
+              </div>
+              <div style="text-align:center;font-family:var(--font-mono);font-weight:800;color:var(--cisco-blue);" id="memArrow">⇄</div>
+              <div class="mem-card" id="boxRam">
+                <div class="mem-k">RAM</div>
+                <div class="mem-v" id="valRam">Router</div>
+                <div style="font-size:0.64rem;color:var(--text-muted);">running-config</div>
+              </div>
+            </div>
+
+            <div class="reg-box">
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;">Config-Register</div>
+                <div style="font-size:0.68rem;color:var(--text-muted);" id="regDescLive">Arranque normal (lee NVRAM)</div>
+              </div>
+              <span class="reg-code tag-ok" id="liveRegBadge">0x2102</span>
+            </div>
+
+            <div style="font-size:0.74rem;color:var(--text-sec);background:var(--bg-subtle);padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+              <strong>Acceso rápido:</strong> Haz clic en <strong>PC-OFICINA</strong> o <strong>IMPRESORA</strong> en el mapa para poner sus IPs, y en <strong>ROUTER</strong> o <strong>User/Windows</strong> para usar la consola Cisco.
+            </div>
+          </div>
+
+          <!-- Checklist Guiado desde Cero -->
+          <div class="info-panel">
+            <h3>
+              <span>Ruta de Práctica desde Cero</span>
+              <span id="missionPct" style="font-family:var(--font-mono);color:var(--cisco-blue);">0%</span>
+            </h3>
+            <ul class="mission-ul" id="missionUl">
+              <li data-m="0"><span class="m-dot">1</span> Colocar 6 equipos y conectar los 5 cables</li>
+              <li data-m="1"><span class="m-dot">2</span> Configurar IP en <code>PC-OFICINA</code> (10.0.0.2) e <code>IMPRESORA</code> (11.0.0.2)</li>
+              <li data-m="2"><span class="m-dot">3</span> Configurar <code>R11</code>, IPs en <code>G0/0/0</code> y <code>G0/0/1</code> + <code>no shut</code></li>
+              <li data-m="3"><span class="m-dot">4</span> Poner contraseñas, guardar (<code>do write</code>) y salir (<code>exit</code>)</li>
+              <li data-m="4"><span class="m-dot">5</span> Apagar/Encender Router + <code>Break</code> durante <code>####</code></li>
+              <li data-m="5"><span class="m-dot">6</span> ROMMON: <code>confreg 0x2142</code> y <code>boot</code></li>
+              <li data-m="6"><span class="m-dot">7</span> <code>enable</code> + <code>copy startup-config running-config</code></li>
+              <li data-m="7"><span class="m-dot">8</span> <code>conf t</code>, nueva clave, <code>do write</code> y <code>config-register 0x2102</code></li>
+              <li data-m="8"><span class="m-dot">9</span> <code>copy startup-config running-config</code>, <code>reload</code> e iniciar sesión</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="flow-divider">↓ Ficha Visual de Comandos Copiables · Decodificador Hexadecimal · Capturas del Lab ↓</div>
+
+      <!-- ================= FASE 3: INFOGRAFÍA DE COMANDOS Y REFERENCIA ================= -->
+      <section class="section-box" id="fase-3">
+        <div class="section-bar">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span class="sec-tag">FASE 03 · GUÍA VISUAL DE RECUPERACIÓN</span>
+            <div>
+              <h2>Procedimiento Exacto de Recuperación de Contraseña en Router</h2>
+              <p>Todos los pasos y comandos listos para copiar y ejecutar en la consola del Router o desde la Laptop.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="steps-grid">
+          <article class="step-tile">
+            <div class="st-head">
+              <span class="st-badge">PASO 1 · BLOQUEO</span>
+              <button class="copy-btn" data-copy="exit">Copiar</button>
+            </div>
+            <h3>Configurar contraseñas, guardar y quedar en inicio de sesión</h3>
+            <p>Una vez guardadas las contraseñas en <code>R11</code>, salimos para quedar bloqueados en <code>password:</code>.</p>
+            <pre class="cmd-pre"><span class="c-pr">R11#</span> exit
+<span class="c-rm">password:</span></pre>
+          </article>
+
+          <article class="step-tile">
+            <div class="st-head">
+              <span class="st-badge amber">PASO 2 · REINICIO + BREAK</span>
+              <button class="copy-btn" data-copy="Ctrl + Pausa (PC) | Ctrl + Fn + P (Laptop)">Copiar</button>
+            </div>
+            <h3>Apagar, volver a encender e interrumpir antes de ##</h3>
+            <p>Computadora: <kbd>Ctrl</kbd>+<kbd>Pausa</kbd> · Laptop: <kbd>Ctrl</kbd>+<kbd>Fn</kbd>+<kbd>P</kbd></p>
+            <pre class="cmd-pre"><span class="c-ok">#################</span> <span class="c-cm">! Break antes de ##</span>
+<span class="c-rm">rommon 1 &gt;</span></pre>
+          </article>
+
+          <article class="step-tile">
+            <div class="st-head">
+              <span class="st-badge amber">PASO 3 · ROMMON</span>
+              <button class="copy-btn" data-copy="confreg 0x2142&#10;boot">Copiar</button>
+            </div>
+            <h3>Cambiar registro a 0x2142 y arrancar (boot o reset)</h3>
+            <p>Esperar a que termine la descompresión <code>####...####</code> del IOS.</p>
+            <pre class="cmd-pre"><span class="c-rm">rommon 1 &gt;</span> confreg 0x2142
+<span class="c-rm">rommon 2 &gt;</span> boot <span class="c-cm">"reset o boot"</span>
+<span class="c-ok">################################</span></pre>
+          </article>
+
+          <article class="step-tile">
+            <div class="st-head">
+              <span class="st-badge">PASO 4 · RESTAURAR</span>
+              <button class="copy-btn" data-copy="enable&#10;copy startup-config running-config">Copiar</button>
+            </div>
+            <h3>Entrar a enable y copiar startup-config a running-config</h3>
+            <p>Se carga la configuración previa y el prompt vuelve a <code>R11#</code> sin pedir clave.</p>
+            <pre class="cmd-pre"><span class="c-pr">router&gt;</span> enable
+<span class="c-pr">router#</span> copy startup-config running-config
+<span class="c-ok">R11#</span></pre>
+          </article>
+
+          <article class="step-tile">
+            <div class="st-head">
+              <span class="st-badge">PASO 5 · NUEVA CLAVE</span>
+              <button class="copy-btn" data-copy="conf t&#10;enable secret nueva2026&#10;line console 0&#10;password nueva2026&#10;login&#10;exit&#10;do write&#10;config-register 0x2102">Copiar</button>
+            </div>
+            <h3>Configurar nuevas contraseñas, do write y 0x2102</h3>
+            <p>En Modo Global guardamos y restauramos el registro normal <code>0x2102</code>.</p>
+            <pre class="cmd-pre"><span class="c-pr">R11#</span> conf t
+<span class="c-cm">"Configurar las nuevas contraseñas"</span>
+<span class="c-pr">Router(config)#</span> do write
+<span class="c-pr">Router(config)#</span> config-register 0x2102</pre>
+          </article>
+
+          <article class="step-tile">
+            <div class="st-head">
+              <span class="st-badge green">PASO 6 · RELOAD</span>
+              <button class="copy-btn" data-copy="end&#10;copy startup-config running-config&#10;reload">Copiar</button>
+            </div>
+            <h3>En modo privilegiado confirmar y reiniciar el router</h3>
+            <p>Ejecutar <code>reload</code> (o reiniciar físicamente) y entrar con la nueva clave.</p>
+            <pre class="cmd-pre"><span class="c-pr">R11#</span> copy startup-config running-config
+<span class="c-pr">R11#</span> reload</pre>
+          </article>
+        </div>
+
+        <div class="ref-bottom">
+          <!-- Decodificador de Bits 0x2102 vs 0x2142 -->
+          <div class="info-panel">
+            <h3>
+              <span>Decodificador de Bits: 0x2102 vs 0x2142</span>
+              <span class="tag-ok" id="decBadge">0x2102</span>
+            </h3>
+            <p style="font-size:0.75rem;color:var(--text-muted);">Haz clic en el <strong>3.er dígito (Bit 6)</strong> para ver cómo cambia el comportamiento del arranque:</p>
+            <div class="bit-grid">
+              <div class="nib"><div class="nh">2</div><div class="nb">0010 (15–12)</div></div>
+              <div class="nib"><div class="nh">1</div><div class="nb">0001 (11–8)</div></div>
+              <div class="nib click" id="bitToggle" title="Haz clic para alternar Bit 6">
+                <div class="nh" id="bitHex">0</div>
+                <div class="nb" id="bitBin">0000 (Bit 6=0)</div>
+              </div>
+              <div class="nib"><div class="nh">2</div><div class="nb">0010 (Flash)</div></div>
+            </div>
+            <div id="decExplain" style="font-size:0.76rem;padding:8px 10px;border-radius:6px;background:var(--green-soft);color:var(--text-main);">
+              <strong>0x2102 (Normal):</strong> El router carga Cisco IOS y lee <code>startup-config</code> desde NVRAM (solicita contraseña).
+            </div>
+          </div>
+
+          <!-- Capturas Originales del Laboratorio -->
+          <div class="info-panel">
+            <h3><span>Capturas Reales del Laboratorio</span><span style="font-size:0.69rem;color:var(--text-muted);">Clic para ampliar</span></h3>
+            <div class="cap-grid">
+              <div class="cap-card" data-zoom="logica.jpeg" data-title="Vista Lógica en Cisco Packet Tracer">
+                <img src="logica.jpeg" alt="Topología lógica" />
+                <div class="cap-lbl"><span>Vista Lógica</span><span style="color:var(--cisco-blue);">Ver ↗</span></div>
+              </div>
+              <div class="cap-card" data-zoom="fisica.jpeg" data-title="Vista Física del Rack y Cable de Consola">
+                <img src="fisica.jpeg" alt="Vista física en rack" />
+                <div class="cap-lbl"><span>Vista Física</span><span style="color:var(--cisco-blue);">Ver ↗</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ================= VENTANA MODAL ESTILO CISCO PACKET TRACER ================= -->
+  <div class="pt-modal-backdrop" id="ptModalBg" role="dialog" aria-modal="true">
+    <div class="pt-window" id="ptWindow">
+      <div class="pt-titlebar">
+        <span id="ptWinTitle">Dispositivo</span>
+        <button class="pt-close" id="ptCloseBtn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="pt-tabs" id="ptTabs"></div>
+      <div class="pt-body" id="ptBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT: ICONOS REALISTAS + PACKET TRACER DEVICE WINDOWS + IOS ENGINE
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => document.querySelectorAll(s);
+
+      /* ---------- TOAST ---------- */
+      let tTimer;
+      function toast(msg) {
+        const el = $('#toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(tTimer);
+        tTimer = setTimeout(() => el.classList.remove('show'), 2500);
+      }
+
+      /* ---------- ICONOS SVG REALISTAS ESTILO CISCO PACKET TRACER ---------- */
+      function deviceSVG(type, size = 54) {
+        if (type === 'router') {
+          return `<svg width="${size}" height="${Math.round(size*0.76)}" viewBox="0 0 84 64" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="42" cy="44" rx="34" ry="15" fill="#175278"/>
+            <rect x="8" y="22" width="68" height="22" fill="#1e6896"/>
+            <ellipse cx="42" cy="22" rx="34" ry="15" fill="#4696c4" stroke="#164b6e" stroke-width="1.4"/>
+            <path d="M25 18 L36 22 M36 22 L30 23 M36 22 L33 17" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M59 26 L48 22 M48 22 L54 21 M48 22 L51 27" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M46 14 L56 17 M56 17 L50 18 M56 17 L53 12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M38 30 L28 27 M28 27 L34 26 M28 27 L31 32" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="20" y="40" width="8" height="4" rx="1" fill="#0d2a3d"/>
+            <rect x="32" y="41" width="8" height="4" rx="1" fill="#0d2a3d"/>
+            <circle cx="58" cy="42" r="2.2" fill="#81c784"/>
+          </svg>`;
+        }
+        if (type === 'sw1' || type === 'sw2') {
+          return `<svg width="${size}" height="${Math.round(size*0.72)}" viewBox="0 0 86 62" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="14,12 80,12 72,30 6,30" fill="#4b99c4" stroke="#1b5478" stroke-width="1.3"/>
+            <polygon points="6,30 72,30 72,48 6,48" fill="#1f6a96" stroke="#164a6a" stroke-width="1.3"/>
+            <polygon points="72,30 80,12 80,30 72,48" fill="#154d70" stroke="#123d59" stroke-width="1.2"/>
+            <path d="M22 18 H44 M40 15 L44 18 L40 21" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M62 24 H40 M44 21 L40 24 L44 27" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <g fill="#0f293a">
+              <rect x="13" y="36" width="5" height="5" rx="0.8"/><rect x="20" y="36" width="5" height="5" rx="0.8"/>
+              <rect x="27" y="36" width="5" height="5" rx="0.8"/><rect x="34" y="36" width="5" height="5" rx="0.8"/>
+              <rect x="44" y="36" width="5" height="5" rx="0.8"/><rect x="51" y="36" width="5" height="5" rx="0.8"/>
+            </g>
+            <circle cx="64" cy="39" r="2.2" fill="#81c784"/>
+          </svg>`;
+        }
+        if (type === 'pc') {
+          return `<svg width="${size}" height="${Math.round(size*0.86)}" viewBox="0 0 78 68" xmlns="http://www.w3.org/2000/svg">
+            <rect x="14" y="6" width="50" height="34" rx="3" fill="#4f6d85" stroke="#2c4356" stroke-width="1.5"/>
+            <rect x="18" y="10" width="42" height="26" rx="1.5" fill="#9bc3db"/>
+            <rect x="33" y="40" width="12" height="6" fill="#3a5368"/>
+            <rect x="10" y="46" width="58" height="10" rx="2" fill="#6b8ba4" stroke="#2c4356" stroke-width="1.3"/>
+            <rect x="48" y="49" width="14" height="3" rx="1" fill="#2c4356"/>
+            <circle cx="17" cy="51" r="2" fill="#66bb6a"/>
+            <polygon points="6,64 72,64 66,58 12,58" fill="#cbd5e1" stroke="#64748b" stroke-width="1.2"/>
+          </svg>`;
+        }
+        if (type === 'printer') {
+          return `<svg width="${size}" height="${Math.round(size*0.76)}" viewBox="0 0 84 64" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="22,8 62,8 66,22 18,22" fill="#e2e8f0" stroke="#64748b" stroke-width="1.3"/>
+            <rect x="10" y="22" width="64" height="24" rx="3" fill="#4e89ae" stroke="#244b66" stroke-width="1.5"/>
+            <rect x="16" y="34" width="52" height="18" rx="1.5" fill="#cbd5e1" stroke="#475569" stroke-width="1.2"/>
+            <rect x="22" y="39" width="40" height="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+            <line x1="27" y1="44" x2="55" y2="44" stroke="#94a3b8" stroke-width="1.5"/>
+            <line x1="27" y1="48" x2="49" y2="48" stroke="#94a3b8" stroke-width="1.5"/>
+            <circle cx="64" cy="28" r="2.5" fill="#81c784"/>
+          </svg>`;
+        }
+        // laptop (User/Windows)
+        return `<svg width="${size}" height="${Math.round(size*0.76)}" viewBox="0 0 84 64" xmlns="http://www.w3.org/2000/svg">
+          <rect x="16" y="8" width="52" height="33" rx="3" fill="#47667d" stroke="#23394a" stroke-width="1.5"/>
+          <rect x="20" y="12" width="44" height="25" rx="1.5" fill="#9bc9e0"/>
+          <polyline points="27,22 33,26 27,30" fill="none" stroke="#134266" stroke-width="2" stroke-linecap="round"/>
+          <line x1="36" y1="30" x2="44" y2="30" stroke="#134266" stroke-width="2" stroke-linecap="round"/>
+          <polygon points="16,41 68,41 78,54 6,54" fill="#7c98ad" stroke="#2c4356" stroke-width="1.4"/>
+          <rect x="35" y="48" width="14" height="4" rx="1" fill="#475569"/>
+        </svg>`;
+      }
+
+      /* ---------- MODELO DE DATOS DEL LABORATORIO ---------- */
+      const DEVICES = {
+        pc:      { name: 'PC-OFICINA',   sub: 'Red 10.0.0.0', x: 96,  y: 164 },
+        sw1:     { name: 'Switch1',      sub: 'Capa 2 LAN1',  x: 298, y: 164 },
+        router:  { name: 'ROUTER',       sub: 'Gateway R11',  x: 480, y: 260 },
+        sw2:     { name: 'Switch2',      sub: 'Capa 2 LAN2',  x: 662, y: 164 },
+        printer: { name: 'IMPRESORA',    sub: 'Red 11.0.0.0', x: 864, y: 164 },
+        laptop:  { name: 'User/Windows', sub: 'Consola RS232',x: 634, y: 383 }
+      };
+
+      const LINKS = [
+        { id: 'pc-sw1',        a: 'pc',     b: 'sw1',     type: 'ethernet', pA: 'Fa0',      pB: 'Fa0/1' },
+        { id: 'sw1-router',    a: 'sw1',    b: 'router',  type: 'ethernet', pA: 'Fa0/24',   pB: 'Gig0/0/0', iface: 'g000' },
+        { id: 'router-sw2',    a: 'router', b: 'sw2',     type: 'ethernet', pA: 'Gig0/0/1', pB: 'Fa0/1',    iface: 'g001' },
+        { id: 'sw2-printer',   a: 'sw2',    b: 'printer', type: 'ethernet', pA: 'Fa0/2',    pB: 'Fa0' },
+        { id: 'laptop-router', a: 'laptop', b: 'router',  type: 'console',  pA: 'RS-232',   pB: 'Console' }
+      ];
+
+      let activeTool = 'select'; // select | ethernet | console
+      let placed = new Set();
+      let connected = new Set();
+      let wireFrom = null;
+      let draggingWire = false;
+
+      let pcCfg = { ip: '', mask: '', gw: '' };
+      let prCfg = { ip: '', mask: '', gw: '' };
+
+      let rtr = {};
+      let cliHistoryLines = [];
+      let bootTimer = null;
+      let autoRunning = false;
+
+      // Modal tracking
+      let openModalKind = null; // 'router', 'laptop', 'pc', 'printer', 'sw1', 'sw2', 'image', 'specs'
+      let openModalTab = null;
+
+      function createFreshRouter() {
+        return {
+          powered: true,
+          mode: 'USER', // OFF, USER, PRIV, CONFIG, IF_G000, IF_G001, LINE_CON, LOGIN, BOOTING, ROMMON
+          hostname: 'Router',
+          g000Ip: '', g000Mask: '', g000Up: false,
+          g001Ip: '', g001Mask: '', g001Up: false,
+          secretPass: '',
+          consolePass: '',
+          nvram: null,
+          confreg: '0x2102',
+          nextConfreg: '0x2102',
+          rommonNum: 1,
+          canBreak: false,
+          lockedOnce: false,
+          rommonDone: false,
+          restoredStartup: false,
+          newPassSet: false,
+          recoveredDone: false
+        };
+      }
+
+      /* ---------- CONSTRUIR PALETA DE DISPOSITIVOS ---------- */
+      const devPalette = $('#devPalette');
+      Object.entries(DEVICES).forEach(([id, info]) => {
+        const card = document.createElement('div');
+        card.className = 'pal-card';
+        card.draggable = true;
+        card.dataset.dev = id;
+        card.innerHTML = `${deviceSVG(id, 44)}<div class="pal-name">${info.name}</div><div class="pal-sub">${info.sub}</div>`;
+        card.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', id));
+        card.addEventListener('click', () => {
+          placeDevice(id);
+          toast(`${info.name} colocado en el plano`);
+        });
+        devPalette.appendChild(card);
+      });
+
+      /* ---------- SELECTOR DE HERRAMIENTAS ---------- */
+      function setTool(tool) {
+        activeTool = tool;
+        wireFrom = null;
+        $$('.stage-node').forEach(n => {
+          n.classList.remove('wire-origin');
+          n.classList.toggle('wire-mode', tool !== 'select');
+        });
+        $$('.tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+      }
+      $$('.tool-btn').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
+
+      /* ---------- COLOCAR DISPOSITIVOS Y JALAR CABLES ---------- */
+      function renderSlotContent(id) {
+        const slot = $(`[data-slot="${id}"]`);
+        const info = DEVICES[id];
+        if (!placed.has(id)) {
+          slot.className = 'stage-node';
+          slot.innerHTML = `<div style="font-size:0.66rem;font-family:var(--font-mono);color:var(--text-muted);line-height:1.25;">Soltar aquí<br/><strong>${info.name}</strong></div>`;
+          return;
+        }
+        slot.className = `stage-node placed ${activeTool !== 'select' ? 'wire-mode' : ''} ${id === 'router' && !rtr.powered ? 'powered-off' : ''}`;
+        let subText = info.sub;
+        let subCls = '';
+        if (id === 'pc' && pcCfg.ip) { subText = pcCfg.ip; subCls = 'configured'; }
+        if (id === 'printer' && prCfg.ip) { subText = prCfg.ip; subCls = 'configured'; }
+        if (id === 'router') {
+          subText = rtr.powered ? (rtr.mode === 'ROMMON' ? 'ROMMON' : rtr.hostname) : 'APAGADO';
+          subCls = rtr.g000Up && rtr.g001Up ? 'configured' : '';
+        }
+        const hintMap = {
+          pc: 'Clic: Config IP / CMD',
+          printer: 'Clic: Config IP',
+          router: 'Clic: Físico / CLI',
+          laptop: 'Clic: Desktop → Terminal',
+          sw1: 'Clic: Ver Puertos',
+          sw2: 'Clic: Ver Puertos'
+        };
+        slot.innerHTML = `
+          ${deviceSVG(id, 56)}
+          <div class="node-title">${id === 'router' && rtr.hostname !== 'Router' ? `ROUTER (${rtr.hostname})` : info.name}</div>
+          <div class="node-sub-ip ${subCls}">${subText}</div>
+          <div class="node-action-hint">${activeTool === 'select' ? hintMap[id] : 'Arrastrar cable'}</div>
+        `;
+      }
+
+      function placeDevice(id) {
+        if (placed.has(id)) return;
+        placed.add(id);
+        $(`[data-dev="${id}"]`).classList.add('placed');
+        renderSlotContent(id);
+        // Si colocó los 6 equipos y faltan cables, pasar a herramienta de Ethernet automáticamente
+        if (placed.size === 6 && connected.size === 0 && activeTool === 'select') {
+          setTool('ethernet');
+          toast('✔ 6 equipos listos. Herramienta cambiada a Cable Directo (Ethernet)');
+        }
+        refreshAllUI();
+      }
+
+      const ptStage = $('#ptStage');
+      const wirePreview = $('#wirePreview');
+
+      $$('.stage-node').forEach(slot => {
+        const id = slot.dataset.slot;
+        renderSlotContent(id);
+
+        slot.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!placed.has(id)) slot.classList.add('drag-over');
+        });
+        slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+        slot.addEventListener('drop', (e) => {
+          e.preventDefault();
+          slot.classList.remove('drag-over');
+          const dev = e.dataTransfer.getData('text/plain');
+          if (dev === id) {
+            placeDevice(dev);
+            toast(`✔ ${DEVICES[dev].name} colocado`);
+          } else if (dev) {
+            toast(`Coloca ${DEVICES[dev].name} en su ubicación correspondiente`);
+          }
+        });
+
+        slot.addEventListener('pointerdown', (e) => {
+          if (!placed.has(id)) return;
+          if (activeTool === 'select') {
+            openDeviceModal(id);
+            return;
+          }
+          // Modo cableado: arrastrar o clic-a-clic
+          e.preventDefault();
+          if (wireFrom && wireFrom !== id) {
+            connectDevices(wireFrom, id);
+            wireFrom = null;
+            $$('.stage-node').forEach(n => n.classList.remove('wire-origin'));
+            return;
+          }
+          wireFrom = id;
+          draggingWire = true;
+          $$('.stage-node').forEach(n => n.classList.remove('wire-origin'));
+          slot.classList.add('wire-origin');
+          drawWirePreview(id, e.clientX, e.clientY);
+        });
+      });
+
+      ptStage.addEventListener('pointermove', (e) => {
+        if (!draggingWire || !wireFrom) return;
+        drawWirePreview(wireFrom, e.clientX, e.clientY);
+      });
+
+      window.addEventListener('pointerup', (e) => {
+        if (!draggingWire) return;
+        draggingWire = false;
+        wirePreview.setAttribute('visibility', 'hidden');
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        const target = el ? el.closest('.stage-node') : null;
+        if (target && target.dataset.slot !== wireFrom && placed.has(target.dataset.slot)) {
+          connectDevices(wireFrom, target.dataset.slot);
+          wireFrom = null;
+          $$('.stage-node').forEach(n => n.classList.remove('wire-origin'));
+        }
+      });
+
+      function drawWirePreview(fromId, cx, cy) {
+        const rect = ptStage.getBoundingClientRect();
+        const x2 = ((cx - rect.left) / rect.width) * 960;
+        const y2 = ((cy - rect.top) / rect.height) * 456;
+        const a = DEVICES[fromId];
+        wirePreview.setAttribute('stroke', activeTool === 'console' ? '#2f95b8' : '#1e293b');
+        wirePreview.setAttribute('d', `M ${a.x} ${a.y} L ${x2} ${y2}`);
+        wirePreview.setAttribute('visibility', 'visible');
+      }
+
+      function connectDevices(a, b) {
+        const lk = LINKS.find(l => (l.a === a && l.b === b) || (l.a === b && l.b === a));
+        if (!lk) { toast('Esa conexión no corresponde a la topología del laboratorio'); return; }
+        if (connected.has(lk.id)) { toast('Ese enlace ya está conectado'); return; }
+        if (lk.type !== activeTool) {
+          toast(lk.type === 'console'
+            ? 'Selecciona el Cable de Consola (Celeste) para conectar User/Windows ↔ ROUTER'
+            : 'Selecciona el Cable Directo (Ethernet) para los enlaces de red');
+          return;
+        }
+        connected.add(lk.id);
+        toast(`✔ Cable conectado: ${DEVICES[lk.a].name} (${lk.pA}) ↔ ${DEVICES[lk.b].name} (${lk.pB})`);
+
+        // Si ya conectó los 4 Ethernet y solo falta consola, sugerir consola
+        const ethDone = LINKS.filter(l => l.type === 'ethernet').every(l => connected.has(l.id));
+        if (ethDone && !connected.has('laptop-router')) {
+          setTool('console');
+          toast('✔ Enlaces Ethernet listos. Ahora conecta el Cable de Consola celeste (User/Windows ↔ ROUTER)');
+        }
+        if (connected.size === 5) {
+          setTool('select');
+          toast('✔ ¡Todos los cables conectados! Haz clic en cualquier equipo para configurarlo');
+        }
+        refreshAllUI();
+      }
+
+      /* ---------- DIBUJAR CABLES Y TRIÁNGULOS DE ENLACE ESTILO PACKET TRACER ---------- */
+      function renderLinksSVG() {
+        const linksLayer = $('#linksLayer');
+        const portsLayer = $('#portsLayer');
+        linksLayer.innerHTML = '';
+        portsLayer.innerHTML = '';
+
+        LINKS.forEach(l => {
+          if (!connected.has(l.id)) return;
+          const A = DEVICES[l.a], B = DEVICES[l.b];
+
+          if (l.type === 'console') {
+            // Cable celeste curvo con aros negros en los extremos (igual que logica.jpeg)
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', `M ${A.x - 14} ${A.y - 20} Q 590 278 ${B.x + 28} ${B.y + 10}`);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', '#2aa4cc');
+            path.setAttribute('stroke-width', '3.5');
+            linksLayer.appendChild(path);
+
+            [[A.x - 14, A.y - 20], [B.x + 28, B.y + 10]].forEach(([cx, cy]) => {
+              const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+              c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', '5');
+              c.setAttribute('fill', '#ffffff'); c.setAttribute('stroke', '#111827'); c.setAttribute('stroke-width', '2.5');
+              portsLayer.appendChild(c);
+            });
+            return;
+          }
+
+          // Cable Ethernet recto negro (estilo clásico Packet Tracer)
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', A.x); line.setAttribute('y1', A.y);
+          line.setAttribute('x2', B.x); line.setAttribute('y2', B.y);
+          line.setAttribute('stroke', '#1f2937');
+          line.setAttribute('stroke-width', '2.6');
+          linksLayer.appendChild(line);
+
+          // Determinar si el enlace está UP (verde) o DOWN (rojo)
+          let isUp = true;
+          if (l.iface === 'g000') isUp = rtr.powered && rtr.g000Up && rtr.mode !== 'BOOTING' && rtr.mode !== 'ROMMON';
+          if (l.iface === 'g001') isUp = rtr.powered && rtr.g001Up && rtr.mode !== 'BOOTING' && rtr.mode !== 'ROMMON';
+
+          const triColor = isUp ? '#2e7d32' : '#c62828';
+          // Triángulos en ambos extremos al 26% y 74% del segmento
+          [0.27, 0.73].forEach(t => {
+            const tx = A.x + (B.x - A.x) * t;
+            const ty = A.y + (B.y - A.y) * t;
+            const tri = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            tri.setAttribute('points', `${tx},${ty - 7} ${tx - 6},${ty + 5} ${tx + 6},${ty + 5}`);
+            tri.setAttribute('fill', triColor);
+            portsLayer.appendChild(tri);
+          });
+
+          // Etiqueta visible Gig0/0/1 y Fa0/1 como en logica.jpeg
+          if (l.id === 'router-sw2') {
+            const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t1.setAttribute('x', 515); t1.setAttribute('y', 214);
+            t1.setAttribute('font-family', 'Inter, sans-serif'); t1.setAttribute('font-size', '12'); t1.setAttribute('font-weight', '600');
+            t1.setAttribute('fill', '#1e293b'); t1.textContent = 'Gig0/0/1';
+            portsLayer.appendChild(t1);
+
+            const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t2.setAttribute('x', 585); t2.setAttribute('y', 180);
+            t2.setAttribute('font-family', 'Inter, sans-serif'); t2.setAttribute('font-size', '12'); t2.setAttribute('font-weight', '600');
+            t2.setAttribute('fill', '#1e293b'); t2.textContent = 'Fa0/1';
+            portsLayer.appendChild(t2);
+          }
+          if (l.id === 'sw1-router') {
+            const t0 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t0.setAttribute('x', 415); t0.setAttribute('y', 214);
+            t0.setAttribute('font-family', 'Inter, sans-serif'); t0.setAttribute('font-size', '11'); t0.setAttribute('font-weight', '600');
+            t0.setAttribute('fill', '#475569'); t0.textContent = 'Gig0/0/0';
+            portsLayer.appendChild(t0);
+          }
+        });
+      }
+
+      /* ==========================================================================
+         MOTOR CISCO IOS & ROMMON (COMPARTIDO ENTRE ROUTER CLI Y LAPTOP TERMINAL)
+         ========================================================================== */
+      function addCliLine(text, cls = '') {
+        cliHistoryLines.push({ text, cls });
+        if (cliHistoryLines.length > 220) cliHistoryLines.shift();
+        renderActiveCliModal();
+      }
+
+      function getCliPrompt() {
+        if (!rtr.powered) return '[APAGADO]';
+        const h = rtr.hostname;
+        const m = {
+          USER: `${h}>`,
+          PRIV: `${h}#`,
+          CONFIG: `${h}(config)#`,
+          IF_G000: `${h}(config-if)#`,
+          IF_G001: `${h}(config-if)#`,
+          LINE_CON: `${h}(config-line)#`,
+          LOGIN: 'Password:',
+          BOOTING: '...',
+          ROMMON: `rommon ${rtr.rommonNum} >`
+        };
+        return m[rtr.mode] || `${h}>`;
+      }
+
+      function saveNvram() {
+        rtr.nvram = {
+          hostname: rtr.hostname,
+          g000Ip: rtr.g000Ip, g000Mask: rtr.g000Mask, g000Up: rtr.g000Up,
+          g001Ip: rtr.g001Ip, g001Mask: rtr.g001Mask, g001Up: rtr.g001Up,
+          secretPass: rtr.secretPass, consolePass: rtr.consolePass
+        };
+        $('#memArrow').textContent = '←';
+        setTimeout(() => $('#memArrow').textContent = '⇄', 900);
+      }
+
+      function toggleRouterPower(forceCycle = false) {
+        if (forceCycle) {
+          rtr.powered = false;
+          clearInterval(bootTimer);
+          addCliLine('--- Interruptor físico: ROUTER APAGADO (OFF) ---', 'l-err');
+          refreshAllUI();
+          setTimeout(() => startBoot(true), 450);
+          return;
+        }
+        if (rtr.powered) {
+          rtr.powered = false;
+          rtr.canBreak = false;
+          clearInterval(bootTimer);
+          addCliLine('--- Interruptor físico: ROUTER APAGADO (OFF) ---', 'l-err');
+          refreshAllUI();
+        } else {
+          startBoot(true);
+        }
+      }
+
+      function startBoot(allowBreak) {
+        clearInterval(bootTimer);
+        rtr.powered = true;
+        rtr.mode = 'BOOTING';
+        rtr.canBreak = allowBreak;
+        addCliLine('', '');
+        addCliLine('--- Encendiendo ROUTER (ON) ---', 'l-warn');
+        addCliLine('System Bootstrap, Version 15.1(4)M4, RELEASE SOFTWARE', 'l-sys');
+        cliHistoryLines.push({ text: 'Self decompressing the image : ', cls: 'l-ok', isHash: true });
+        refreshAllUI();
+
+        let ticks = 0;
+        const maxTicks = allowBreak ? 24 : 16;
+        bootTimer = setInterval(() => {
+          ticks++;
+          const last = cliHistoryLines[cliHistoryLines.length - 1];
+          if (last && last.isHash) last.text += '#';
+          renderActiveCliModal();
+          if (ticks >= maxTicks) {
+            clearInterval(bootTimer);
+            rtr.canBreak = false;
+            finishBoot();
+          }
+        }, 160);
+      }
+
+      function sendBreak() {
+        if (!rtr.canBreak || rtr.mode !== 'BOOTING') return;
+        clearInterval(bootTimer);
+        rtr.canBreak = false;
+        rtr.mode = 'ROMMON';
+        rtr.rommonNum = 1;
+        addCliLine('', '');
+        addCliLine('monitor: command "boot" aborted due to user interrupt', 'l-warn');
+        addCliLine('✔ Modo ROMMON activo. Escribe: confreg 0x2142', 'l-ok');
+        refreshAllUI();
+      }
+
+      function finishBoot() {
+        addCliLine(' [OK]', 'l-ok');
+        rtr.confreg = rtr.nextConfreg;
+
+        if (rtr.confreg === '0x2142') {
+          rtr.hostname = 'Router';
+          rtr.g000Up = false;
+          rtr.g001Up = false;
+          rtr.mode = 'USER';
+          rtr.rommonDone = true;
+          addCliLine('Registro 0x2142 detectado: startup-config omitida.', 'l-warn');
+          addCliLine('Would you like to enter the initial configuration dialog? [yes/no]: no', 'l-sys');
+        } else if (rtr.nvram) {
+          Object.assign(rtr, {
+            hostname: rtr.nvram.hostname,
+            g000Ip: rtr.nvram.g000Ip, g000Mask: rtr.nvram.g000Mask, g000Up: rtr.nvram.g000Up,
+            g001Ip: rtr.nvram.g001Ip, g001Mask: rtr.nvram.g001Mask, g001Up: rtr.nvram.g001Up,
+            secretPass: rtr.nvram.secretPass, consolePass: rtr.nvram.consolePass,
+            mode: 'LOGIN'
+          });
+          addCliLine('Registro 0x2102: cargando startup-config desde NVRAM...', 'l-sys');
+          addCliLine('User Access Verification', 'l-warn');
+          if (rtr.newPassSet) {
+            addCliLine(`Reinicio completado. Ingresa tu nueva contraseña (${rtr.secretPass}):`, 'l-ok');
+          } else {
+            addCliLine('No se interrumpió a tiempo. Apaga y vuelve a encender el router y presiona Break.', 'l-err');
+          }
+        } else {
+          rtr.mode = 'USER';
+        }
+        refreshAllUI();
+      }
+
+      function runIosCmd(raw) {
+        const cmd = raw.trim();
+        if (!cmd || !rtr.powered || rtr.mode === 'BOOTING') return;
+
+        addCliLine(`${getCliPrompt()} ${rtr.mode === 'LOGIN' ? '••••••••' : cmd}`, 'l-cmd');
+        const lc = cmd.toLowerCase();
+
+        if (rtr.mode === 'LOGIN') {
+          if (rtr.newPassSet && (cmd === rtr.secretPass || cmd === rtr.consolePass)) {
+            rtr.mode = 'PRIV';
+            rtr.recoveredDone = true;
+            addCliLine('✔ ¡Acceso concedido! Contraseña recuperada y configuración intacta.', 'l-ok');
+            toast('✔ ¡Contraseña recuperada exitosamente!');
+          } else {
+            addCliLine('% Bad passwords', 'l-err');
+            if (!rtr.newPassSet) addCliLine('Pista: Apaga y enciende el router (botón Power Cycle o pestaña Physical) y presiona Break.', 'l-sys');
+          }
+          refreshAllUI();
+          return;
+        }
+
+        if (rtr.mode === 'ROMMON') {
+          if (lc === 'confreg 0x2142') {
+            rtr.nextConfreg = '0x2142';
+            rtr.rommonNum++;
+            addCliLine('You must reset or power cycle for new config to take effect', 'l-ok');
+          } else if (lc === 'boot' || lc === 'reset') {
+            rtr.rommonNum++;
+            startBoot(false);
+            return;
+          } else {
+            addCliLine('Usa "confreg 0x2142" y luego "boot" (o "reset").', 'l-err');
+          }
+          refreshAllUI();
+          return;
+        }
+
+        if (rtr.mode === 'USER') {
+          if (lc === 'enable' || lc === 'en') {
+            rtr.mode = 'PRIV';
+          } else {
+            addCliLine('% Escribe "enable" para entrar al modo privilegiado.', 'l-err');
+          }
+          refreshAllUI();
+          return;
+        }
+
+        if (rtr.mode === 'PRIV') {
+          if (lc === 'conf t' || lc === 'configure terminal') {
+            rtr.mode = 'CONFIG';
+            addCliLine('Enter configuration commands, one per line. End with CNTL/Z.', 'l-sys');
+          } else if (lc === 'exit') {
+            if (!rtr.nvram) saveNvram();
+            rtr.lockedOnce = true;
+            rtr.mode = 'LOGIN';
+            addCliLine(`${rtr.hostname} con0 is now available. User Access Verification:`, 'l-warn');
+          } else if (lc === 'copy startup-config running-config' || lc === 'copy start run') {
+            if (rtr.nvram) {
+              rtr.hostname = rtr.nvram.hostname;
+              rtr.g000Ip = rtr.nvram.g000Ip; rtr.g000Mask = rtr.nvram.g000Mask; rtr.g000Up = rtr.nvram.g000Up;
+              rtr.g001Ip = rtr.nvram.g001Ip; rtr.g001Mask = rtr.nvram.g001Mask; rtr.g001Up = rtr.nvram.g001Up;
+              rtr.restoredStartup = true;
+              $('#memArrow').textContent = '→';
+              setTimeout(() => $('#memArrow').textContent = '⇄', 900);
+              addCliLine('Destination filename [running-config]? [Enter]', 'l-sys');
+              addCliLine('1248 bytes copied in 0.21 secs. Configuración restaurada en RAM.', 'l-ok');
+            } else {
+              addCliLine('% No hay configuración guardada en NVRAM.', 'l-err');
+            }
+          } else if (lc === 'write' || lc === 'wr' || lc === 'copy running-config startup-config') {
+            saveNvram();
+            addCliLine('Building configuration... [OK]', 'l-ok');
+          } else if (lc === 'reload') {
+            addCliLine('Proceed with reload? [confirm] [Enter]', 'l-sys');
+            startBoot(false);
+            return;
+          } else {
+            addCliLine('% Comandos: conf t, copy startup-config running-config, write, exit, reload', 'l-err');
+          }
+          refreshAllUI();
+          return;
+        }
+
+        if (rtr.mode === 'CONFIG') {
+          if (lc.startsWith('hostname ')) {
+            rtr.hostname = cmd.split(/\s+/)[1] || 'R11';
+          } else if (lc === 'int g0/0/0' || lc === 'interface gig0/0/0' || lc === 'interface gigabitethernet0/0/0') {
+            rtr.mode = 'IF_G000';
+          } else if (lc === 'int g0/0/1' || lc === 'interface gig0/0/1' || lc === 'interface gigabitethernet0/0/1') {
+            rtr.mode = 'IF_G001';
+          } else if (lc === 'line console 0' || lc === 'line con 0') {
+            rtr.mode = 'LINE_CON';
+          } else if (lc.startsWith('enable secret ') || lc.startsWith('enable password ')) {
+            const p = cmd.split(/\s+/)[2] || 'nueva2026';
+            rtr.secretPass = p;
+            if (rtr.restoredStartup) {
+              rtr.consolePass = p;
+              rtr.newPassSet = true;
+              addCliLine(`Nueva contraseña configurada: "${p}". Guarda con "do write" y restaura "config-register 0x2102".`, 'l-ok');
+            } else {
+              addCliLine('Contraseña enable configurada.', 'l-ok');
+            }
+          } else if (lc === 'do write' || lc === 'do wr') {
+            saveNvram();
+            addCliLine('Building configuration... [OK]', 'l-ok');
+          } else if (lc === 'config-register 0x2102') {
+            rtr.nextConfreg = '0x2102';
+            addCliLine('Registro configurado a 0x2102 (activo en el próximo reload).', 'l-ok');
+          } else if (lc === 'end' || lc === 'exit') {
+            rtr.mode = 'PRIV';
+          } else {
+            addCliLine('% Usa: hostname R11, int g0/0/0, int g0/0/1, enable secret <clave>, line console 0, do write, config-register 0x2102, end', 'l-err');
+          }
+          refreshAllUI();
+          return;
+        }
+
+        if (rtr.mode === 'IF_G000' || rtr.mode === 'IF_G001') {
+          const is0 = rtr.mode === 'IF_G000';
+          if (lc.startsWith('ip address ') || lc.startsWith('ip add ')) {
+            const parts = cmd.split(/\s+/);
+            const ip = parts[2] || '';
+            const mk = parts[3] || '255.0.0.0';
+            if (is0) { rtr.g000Ip = ip; rtr.g000Mask = mk; }
+            else { rtr.g001Ip = ip; rtr.g001Mask = mk; }
+            addCliLine(`IP ${ip} ${mk} asignada en ${is0 ? 'Gig0/0/0' : 'Gig0/0/1'}.`, 'l-ok');
+          } else if (lc === 'no shutdown' || lc === 'no shut') {
+            if (is0) rtr.g000Up = true; else rtr.g001Up = true;
+            addCliLine(`%LINK-5-CHANGED: Interface ${is0 ? 'GigabitEthernet0/0/0' : 'GigabitEthernet0/0/1'}, changed state to up`, 'l-ok');
+          } else if (lc === 'exit') {
+            rtr.mode = 'CONFIG';
+          } else {
+            addCliLine('% Usa: ip address <ip> <mascara>, no shutdown, exit', 'l-err');
+          }
+          refreshAllUI();
+          return;
+        }
+
+        if (rtr.mode === 'LINE_CON') {
+          if (lc.startsWith('password ')) {
+            rtr.consolePass = cmd.split(/\s+/)[1] || 'clave123';
+            addCliLine('Contraseña de consola establecida. Actívala con "login".', 'l-ok');
+          } else if (lc === 'login') {
+            addCliLine('Login en consola activado.', 'l-ok');
+          } else if (lc === 'exit') {
+            rtr.mode = 'CONFIG';
+          } else {
+            addCliLine('% Usa: password <clave>, login, exit', 'l-err');
+          }
+          refreshAllUI();
+        }
+      }
+
+      function getSuggestedCliCmds() {
+        if (!rtr.powered || rtr.mode === 'BOOTING') return [];
+        if (rtr.mode === 'LOGIN') {
+          return rtr.newPassSet && rtr.nextConfreg === '0x2102'
+            ? [rtr.secretPass || 'nueva2026']
+            : ['claveIncorrecta'];
+        }
+        if (rtr.mode === 'ROMMON') return rtr.nextConfreg !== '0x2142' ? ['confreg 0x2142'] : ['boot', 'reset'];
+        if (rtr.mode === 'USER') return ['enable'];
+        if (rtr.mode === 'PRIV') {
+          if (rtr.confreg === '0x2142' && !rtr.restoredStartup) return ['copy startup-config running-config'];
+          if (rtr.restoredStartup && !rtr.newPassSet) return ['conf t'];
+          if (rtr.newPassSet && rtr.nextConfreg === '0x2102' && !rtr.recoveredDone) return ['copy startup-config running-config', 'reload'];
+          if (rtr.hostname !== 'R11' || !rtr.g000Up || !rtr.g001Up || !rtr.secretPass) return ['conf t'];
+          if (!rtr.nvram) return ['write'];
+          if (!rtr.lockedOnce) return ['exit'];
+          return [];
+        }
+        if (rtr.mode === 'CONFIG') {
+          if (rtr.restoredStartup) {
+            if (!rtr.newPassSet) return ['enable secret nueva2026'];
+            if (!rtr.nvram || rtr.nvram.secretPass !== rtr.secretPass) return ['do write'];
+            if (rtr.nextConfreg !== '0x2102') return ['config-register 0x2102'];
+            return ['end'];
+          }
+          if (rtr.hostname !== 'R11') return ['hostname R11'];
+          if (!rtr.g000Up) return ['int g0/0/0'];
+          if (!rtr.g001Up) return ['int g0/0/1'];
+          if (!rtr.secretPass) return ['enable secret clave123'];
+          if (!rtr.consolePass) return ['line console 0'];
+          if (!rtr.nvram) return ['do write'];
+          return ['end'];
+        }
+        if (rtr.mode === 'IF_G000') return !rtr.g000Ip ? ['ip address 10.0.0.1 255.0.0.0'] : (!rtr.g000Up ? ['no shutdown'] : ['exit']);
+        if (rtr.mode === 'IF_G001') return !rtr.g001Ip ? ['ip address 11.0.0.1 255.0.0.0'] : (!rtr.g001Up ? ['no shutdown'] : ['exit']);
+        if (rtr.mode === 'LINE_CON') return !rtr.consolePass ? ['password clave123'] : ['login', 'exit'];
+        return [];
+      }
+
+      /* ==========================================================================
+         VENTANAS MODALES ESTILO CISCO PACKET TRACER (ROUTER, LAPTOP, PC, IMPRESORA)
+         ========================================================================== */
+      const ptModalBg = $('#ptModalBg');
+      const ptWinTitle = $('#ptWinTitle');
+      const ptTabs = $('#ptTabs');
+      const ptBody = $('#ptBody');
+
+      function closeDeviceModal() {
+        openModalKind = null;
+        openModalTab = null;
+        ptModalBg.classList.remove('open');
+      }
+      $('#ptCloseBtn').addEventListener('click', closeDeviceModal);
+      ptModalBg.addEventListener('click', (e) => { if (e.target === ptModalBg) closeDeviceModal(); });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && ptModalBg.classList.contains('open')) closeDeviceModal();
+        if (rtr.canBreak && e.ctrlKey && (e.key === 'Pause' || e.key.toLowerCase() === 'b')) {
+          e.preventDefault();
+          sendBreak();
+        }
+      });
+
+      function openDeviceModal(kind, defaultTab = null) {
+        openModalKind = kind;
+        if (kind === 'router') {
+          ptWinTitle.textContent = `ROUTER (${rtr.hostname}) · Cisco Packet Tracer`;
+          openModalTab = defaultTab || 'cli';
+          renderRouterWindow();
+        } else if (kind === 'laptop') {
+          ptWinTitle.textContent = 'User/Windows (Laptop) · Cisco Packet Tracer';
+          openModalTab = defaultTab || 'desktop';
+          renderLaptopWindow();
+        } else if (kind === 'pc') {
+          ptWinTitle.textContent = 'PC-OFICINA · Cisco Packet Tracer';
+          openModalTab = defaultTab || 'ip';
+          renderPcWindow();
+        } else if (kind === 'printer') {
+          ptWinTitle.textContent = 'IMPRESORA · Cisco Packet Tracer';
+          openModalTab = defaultTab || 'ip';
+          renderPrinterWindow();
+        } else if (kind === 'sw1' || kind === 'sw2') {
+          ptWinTitle.textContent = `${DEVICES[kind].name} · Cisco Packet Tracer`;
+          openModalTab = 'ports';
+          renderSwitchWindow(kind);
+        }
+        ptModalBg.classList.add('open');
+      }
+
+      function buildTabs(tabList, onSelect) {
+        ptTabs.innerHTML = '';
+        tabList.forEach(t => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = `pt-tab ${openModalTab === t.id ? 'active' : ''}`;
+          b.textContent = t.label;
+          b.onclick = () => { openModalTab = t.id; onSelect(); };
+          ptTabs.appendChild(b);
+        });
+      }
+
+      function mountCliInside(container, subtitle) {
+        container.innerHTML = `
+          <div class="pt-cli-wrap">
+            <div class="pt-cli-toolbar">
+              <span>${subtitle}</span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn" id="mPowerCycle" style="padding:4px 9px;font-size:0.71rem;">⏻ Apagar/Encender</button>
+                <button type="button" class="btn amber" id="mBreakBtn" style="padding:4px 9px;font-size:0.71rem;" ${rtr.canBreak ? '' : 'disabled'}>⚡ Enviar Break (Ctrl+Pausa / Ctrl+B)</button>
+              </div>
+            </div>
+            <div class="pt-cli-out" id="mCliOut"></div>
+            <div class="pt-cli-quick" id="mCliQuick"></div>
+            <form class="pt-cli-input-row" id="mCliForm" autocomplete="off">
+              <span class="pt-cli-prompt" id="mCliPrompt"></span>
+              <input type="text" class="pt-cli-input" id="mCliInput" spellcheck="false" placeholder="Escribe un comando Cisco IOS / ROMMON..." />
+            </form>
+          </div>
+        `;
+        $('#mPowerCycle').onclick = () => toggleRouterPower(true);
+        $('#mBreakBtn').onclick = () => sendBreak();
+        $('#mCliForm').onsubmit = (e) => {
+          e.preventDefault();
+          const inp = $('#mCliInput');
+          const v = inp.value;
+          inp.value = '';
+          runIosCmd(v);
+        };
+        renderActiveCliModal();
+        setTimeout(() => { const inp = $('#mCliInput'); if (inp && !inp.disabled) inp.focus(); }, 40);
+      }
+
+      function renderActiveCliModal() {
+        const out = $('#mCliOut');
+        if (!out) return;
+        out.innerHTML = '';
+        cliHistoryLines.forEach(item => {
+          const d = document.createElement('div');
+          if (item.cls) d.className = item.cls;
+          d.textContent = item.text;
+          out.appendChild(d);
+        });
+        out.scrollTop = out.scrollHeight;
+
+        const pr = $('#mCliPrompt');
+        const inp = $('#mCliInput');
+        const brk = $('#mBreakBtn');
+        const qk = $('#mCliQuick');
+
+        if (pr) pr.textContent = getCliPrompt();
+        if (inp) {
+          inp.type = rtr.mode === 'LOGIN' ? 'password' : 'text';
+          inp.disabled = (!rtr.powered || rtr.mode === 'BOOTING');
+        }
+        if (brk) brk.disabled = !rtr.canBreak;
+        if (qk) {
+          qk.innerHTML = '<span style="font-family:var(--font-mono);font-size:0.69rem;color:#9aa5b1;">Sugerido:</span>';
+          const list = getSuggestedCliCmds();
+          if (rtr.mode === 'BOOTING' && rtr.canBreak) {
+            const sp = document.createElement('span');
+            sp.style.cssText = 'font-family:var(--font-mono);font-size:0.71rem;color:#f6c177;font-weight:700;';
+            sp.textContent = '¡Presiona "⚡ Enviar Break" ahora antes de que terminen los ###!';
+            qk.appendChild(sp);
+          } else {
+            list.forEach(c => {
+              const b = document.createElement('button');
+              b.type = 'button';
+              b.className = 'quick-cmd';
+              b.textContent = c;
+              b.onclick = () => runIosCmd(c);
+              qk.appendChild(b);
+            });
+          }
+        }
+      }
+
+      /* --- VENTANA 1: ROUTER (Physical + CLI) --- */
+      function renderRouterWindow() {
+        buildTabs([
+          { id: 'physical', label: 'Physical (Interruptor)' },
+          { id: 'cli', label: 'CLI (Consola Cisco IOS)' }
+        ], renderRouterWindow);
+
+        if (openModalTab === 'physical') {
+          ptBody.innerHTML = `
+            <p style="font-size:0.8rem;color:var(--text-sec);margin-bottom:12px;">
+              Vista trasera del <strong>Cisco Router</strong>. Usa el interruptor físico de energía para apagar y volver a encender el equipo durante la recuperación de contraseña.
+            </p>
+            <div class="router-chassis">
+              <div>
+                <div style="font-family:var(--font-mono);font-size:0.74rem;color:#94a3b8;margin-bottom:8px;">CISCO 2911 · ${rtr.hostname}</div>
+                <div class="chassis-ports">
+                  <div class="port-jack console">
+                    <div><span class="port-led ${connected.has('laptop-router') ? 'on' : ''}"></span>CONSOLE</div>
+                    <div class="port-hole" style="border-color:#2f95b8;"></div>
+                  </div>
+                  <div class="port-jack">
+                    <div><span class="port-led ${rtr.powered && rtr.g000Up ? 'on' : 'down'}"></span>Gig0/0/0</div>
+                    <div class="port-hole"></div>
+                  </div>
+                  <div class="port-jack">
+                    <div><span class="port-led ${rtr.powered && rtr.g001Up ? 'on' : 'down'}"></span>Gig0/0/1</div>
+                    <div class="port-hole"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="power-unit">
+                <div style="font-size:0.74rem;">
+                  <div style="font-weight:700;">Power Switch</div>
+                  <div style="font-family:var(--font-mono);font-size:0.68rem;color:#cbd5e1;">${rtr.powered ? 'ENCENDIDO (I)' : 'APAGADO (O)'}</div>
+                </div>
+                <button type="button" class="rocker-switch ${rtr.powered ? '' : 'off'}" id="physPowerBtn">${rtr.powered ? 'ON' : 'OFF'}</button>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <button type="button" class="btn primary" id="goCliFromPhys">Ir a pestaña CLI →</button>
+              <span style="font-size:0.76rem;color:var(--text-muted);">Al volver a encender (ON), cambia enseguida a la pestaña <strong>CLI</strong> para enviar <code>Break</code> durante los <code>###</code>.</span>
+            </div>
+          `;
+          $('#physPowerBtn').onclick = () => {
+            toggleRouterPower(false);
+            if (rtr.powered) {
+              openModalTab = 'cli';
+              renderRouterWindow();
+            } else {
+              renderRouterWindow();
+            }
+          };
+          $('#goCliFromPhys').onclick = () => { openModalTab = 'cli'; renderRouterWindow(); };
+        } else {
+          mountCliInside(ptBody, `Cisco IOS Command Line Interface · ${rtr.hostname}`);
+        }
+      }
+
+      /* --- VENTANA 2: LAPTOP User/Windows (Desktop -> Terminal Config -> Consola) --- */
+      function renderLaptopWindow() {
+        buildTabs([
+          { id: 'desktop', label: 'Desktop' },
+          { id: 'termcfg', label: 'Terminal (RS-232)' }
+        ], renderLaptopWindow);
+
+        if (openModalTab === 'desktop') {
+          ptBody.innerHTML = `
+            <p style="font-size:0.8rem;color:var(--text-sec);margin-bottom:10px;">
+              Escritorio de <strong>User/Windows</strong>. Selecciona <strong>Terminal</strong> para conectarte al puerto de consola del Router mediante el cable celeste RS-232.
+            </p>
+            <div class="pt-desktop-grid">
+              <button type="button" class="desktop-app" id="lapOpenTerm">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1b5a8a" stroke-width="2"><rect x="2" y="3" width="20" height="16" rx="2"/><polyline points="6 9 10 12 6 15"/><line x1="12" y1="15" x2="18" y2="15"/></svg>
+                <strong>Terminal</strong>
+                <span>Consola RS-232 (9600-8-N-1)</span>
+              </button>
+              <button type="button" class="desktop-app" id="lapInfoCable">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2f95b8" stroke-width="2"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M8.5 16.5 C12 13, 12 11, 15.5 7.5"/></svg>
+                <strong>Estado Cable Consola</strong>
+                <span>${connected.has('laptop-router') ? '✔ Conectado a ROUTER' : '✖ Sin conectar'}</span>
+              </button>
+            </div>
+          `;
+          $('#lapOpenTerm').onclick = () => { openModalTab = 'termcfg'; renderLaptopWindow(); };
+          $('#lapInfoCable').onclick = () => {
+            if (connected.has('laptop-router')) toast('✔ Cable RS-232 conectado correctamente');
+            else toast('Conecta el cable celeste desde User/Windows hasta ROUTER en la Fase 01');
+          };
+        } else if (openModalTab === 'termcfg') {
+          ptBody.innerHTML = `
+            <div style="max-width:430px;margin:4px auto;border:1px solid var(--border-dark);border-radius:8px;padding:16px;background:var(--bg-subtle);">
+              <h4 style="font-size:0.88rem;margin-bottom:12px;color:var(--cisco-blue-dark);">Terminal Configuration (Packet Tracer)</h4>
+              <div class="ip-form">
+                <div class="form-row"><label>Bits Per Second:</label><select><option selected>9600</option><option>19200</option></select></div>
+                <div class="form-row"><label>Data Bits:</label><select><option selected>8</option><option>7</option></select></div>
+                <div class="form-row"><label>Parity:</label><select><option selected>None</option></select></div>
+                <div class="form-row"><label>Stop Bits:</label><select><option selected>1</option></select></div>
+                <div class="form-row"><label>Flow Control:</label><select><option selected>None</option></select></div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+                <button type="button" class="btn" id="termCancelBtn">Cancelar</button>
+                <button type="button" class="btn primary" id="termOkBtn">OK (Abrir Consola)</button>
+              </div>
+            </div>
+          `;
+          $('#termCancelBtn').onclick = () => { openModalTab = 'desktop'; renderLaptopWindow(); };
+          $('#termOkBtn').onclick = () => {
+            if (!connected.has('laptop-router')) {
+              ptBody.innerHTML = `
+                <div style="padding:18px;border:1px solid #f5c6cb;background:var(--red-soft);border-radius:8px;color:var(--red);font-size:0.84rem;">
+                  <strong>Sin señal en el puerto RS-232:</strong> No has conectado el <strong>Cable de Consola (celeste)</strong> entre <code>User/Windows</code> y <code>ROUTER</code>.
+                  <div style="margin-top:12px;">
+                    <button type="button" class="btn primary" id="autoConnectConsoleNow">Conectar Cable de Consola ahora</button>
+                  </div>
+                </div>
+              `;
+              $('#autoConnectConsoleNow').onclick = () => {
+                placeDevice('laptop'); placeDevice('router');
+                connected.add('laptop-router');
+                refreshAllUI();
+                openModalTab = 'console';
+                renderLaptopWindow();
+              };
+              return;
+            }
+            openModalTab = 'console';
+            renderLaptopWindow();
+          };
+        } else {
+          // Consola abierta desde la Laptop
+          mountCliInside(ptBody, `User/Windows → Terminal RS-232 (9600-8-N-1) · Conectado a ${rtr.hostname}`);
+        }
+      }
+
+      /* --- VENTANA 3: PC-OFICINA (IP Configuration + Command Prompt) --- */
+      function renderPcWindow() {
+        buildTabs([
+          { id: 'ip', label: 'IP Configuration' },
+          { id: 'cmd', label: 'Command Prompt (Ping)' }
+        ], renderPcWindow);
+
+        if (openModalTab === 'ip') {
+          ptBody.innerHTML = `
+            <p style="font-size:0.8rem;color:var(--text-sec);margin-bottom:14px;">
+              Configura el direccionamiento estático de <strong>PC-OFICINA</strong> dentro de la red <code>10.0.0.0 / 255.0.0.0</code>.
+            </p>
+            <form class="ip-form" id="pcIpForm">
+              <div class="form-row"><label>IPv4 Address:</label><input id="pcIpIn" value="${pcCfg.ip}" placeholder="10.0.0.2" /></div>
+              <div class="form-row"><label>Subnet Mask:</label><input id="pcMaskIn" value="${pcCfg.mask}" placeholder="255.0.0.0" /></div>
+              <div class="form-row"><label>Default Gateway:</label><input id="pcGwIn" value="${pcCfg.gw}" placeholder="10.0.0.1" /></div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+                <button type="submit" class="btn primary">Guardar IP</button>
+                <button type="button" class="btn" id="pcAutoFill">Rellenar sugerido (10.0.0.2)</button>
+              </div>
+            </form>
+          `;
+          $('#pcAutoFill').onclick = () => {
+            $('#pcIpIn').value = '10.0.0.2';
+            $('#pcMaskIn').value = '255.0.0.0';
+            $('#pcGwIn').value = '10.0.0.1';
+          };
+          $('#pcIpForm').onsubmit = (e) => {
+            e.preventDefault();
+            pcCfg.ip = $('#pcIpIn').value.trim();
+            pcCfg.mask = $('#pcMaskIn').value.trim();
+            pcCfg.gw = $('#pcGwIn').value.trim();
+            toast(`✔ PC-OFICINA configurada: ${pcCfg.ip}`);
+            refreshAllUI();
+          };
+        } else {
+          ptBody.innerHTML = `
+            <div class="pt-cli-wrap">
+              <div class="pt-cli-toolbar">
+                <span>PC-OFICINA · Command Prompt</span>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="quick-cmd" id="pcCmdIp">ipconfig</button>
+                  <button type="button" class="quick-cmd" id="pcCmdPing">ping 11.0.0.2</button>
+                </div>
+              </div>
+              <div class="pt-cli-out" id="pcCmdOut" style="height:220px;">Microsoft Windows [PC-OFICINA]\nEscribe "ipconfig" o "ping 11.0.0.2" para probar conectividad con la IMPRESORA.\n</div>
+              <form class="pt-cli-input-row" id="pcCmdForm" autocomplete="off">
+                <span class="pt-cli-prompt">C:\\&gt;</span>
+                <input type="text" class="pt-cli-input" id="pcCmdIn" placeholder="ping 11.0.0.2" />
+              </form>
+            </div>
+          `;
+          const runPcCmd = (c) => {
+            const out = $('#pcCmdOut');
+            out.textContent += `\nC:\\> ${c}\n`;
+            const lc = c.trim().toLowerCase();
+            if (lc === 'ipconfig') {
+              out.textContent += `FastEthernet0 Connection:\n   IPv4 Address. . . . : ${pcCfg.ip || '(Sin asignar)'}\n   Subnet Mask . . . . : ${pcCfg.mask || '(Sin asignar)'}\n   Default Gateway . . : ${pcCfg.gw || '(Sin asignar)'}\n`;
+            } else if (lc.startsWith('ping ')) {
+              const target = lc.split(/\s+/)[1];
+              const res = evaluatePing(target);
+              out.textContent += res.log + '\n';
+              if (res.ok) animatePingEnvelope();
+            } else {
+              out.textContent += `'${c}' no se reconoce. Usa "ipconfig" o "ping 11.0.0.2".\n`;
+            }
+            out.scrollTop = out.scrollHeight;
+          };
+          $('#pcCmdIp').onclick = () => runPcCmd('ipconfig');
+          $('#pcCmdPing').onclick = () => runPcCmd('ping 11.0.0.2');
+          $('#pcCmdForm').onsubmit = (e) => {
+            e.preventDefault();
+            const v = $('#pcCmdIn').value;
+            $('#pcCmdIn').value = '';
+            if (v.trim()) runPcCmd(v);
+          };
+        }
+      }
+
+      /* --- VENTANA 4: IMPRESORA (Config IP & Gateway) --- */
+      function renderPrinterWindow() {
+        buildTabs([{ id: 'ip', label: 'Config · FastEthernet0 & Gateway' }], renderPrinterWindow);
+        ptBody.innerHTML = `
+          <p style="font-size:0.8rem;color:var(--text-sec);margin-bottom:14px;">
+            Configura la interfaz de red y puerta de enlace de la <strong>IMPRESORA</strong> dentro de la red <code>11.0.0.0 / 255.0.0.0</code>.
+          </p>
+          <form class="ip-form" id="prIpForm">
+            <div class="form-row"><label>IPv4 Address:</label><input id="prIpIn" value="${prCfg.ip}" placeholder="11.0.0.2" /></div>
+            <div class="form-row"><label>Subnet Mask:</label><input id="prMaskIn" value="${prCfg.mask}" placeholder="255.0.0.0" /></div>
+            <div class="form-row"><label>Default Gateway:</label><input id="prGwIn" value="${prCfg.gw}" placeholder="11.0.0.1" /></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+              <button type="submit" class="btn primary">Guardar IP</button>
+              <button type="button" class="btn" id="prAutoFill">Rellenar sugerido (11.0.0.2)</button>
+            </div>
+          </form>
+        `;
+        $('#prAutoFill').onclick = () => {
+          $('#prIpIn').value = '11.0.0.2';
+          $('#prMaskIn').value = '255.0.0.0';
+          $('#prGwIn').value = '11.0.0.1';
+        };
+        $('#prIpForm').onsubmit = (e) => {
+          e.preventDefault();
+          prCfg.ip = $('#prIpIn').value.trim();
+          prCfg.mask = $('#prMaskIn').value.trim();
+          prCfg.gw = $('#prGwIn').value.trim();
+          toast(`✔ IMPRESORA configurada: ${prCfg.ip}`);
+          refreshAllUI();
+        };
+      }
+
+      /* --- VENTANA 5: SWITCHES --- */
+      function renderSwitchWindow(swId) {
+        buildTabs([{ id: 'ports', label: 'Estado de Puertos' }], () => renderSwitchWindow(swId));
+        const is1 = swId === 'sw1';
+        ptBody.innerHTML = `
+          <p style="font-size:0.82rem;color:var(--text-sec);margin-bottom:10px;">
+            <strong>${DEVICES[swId].name}</strong> opera en Capa 2 (plug &amp; play) para la red <code>${is1 ? '10.0.0.0/8' : '11.0.0.0/8'}</code>.
+          </p>
+          <table class="ip-table">
+            <thead><tr><th>Puerto</th><th>Conectado a</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>${is1 ? 'Fa0/1' : 'Fa0/1'}</td>
+                <td>${is1 ? 'PC-OFICINA' : 'ROUTER (Gig0/0/1)'}</td>
+                <td>${is1 ? (connected.has('pc-sw1') ? '<span class="tag-ok">UP</span>' : '<span class="tag-wait">Sin cable</span>')
+                          : (connected.has('router-sw2') && rtr.g001Up ? '<span class="tag-ok">UP</span>' : '<span class="tag-wait">DOWN</span>')}</td>
+              </tr>
+              <tr>
+                <td>${is1 ? 'Fa0/24' : 'Fa0/2'}</td>
+                <td>${is1 ? 'ROUTER (Gig0/0/0)' : 'IMPRESORA'}</td>
+                <td>${is1 ? (connected.has('sw1-router') && rtr.g000Up ? '<span class="tag-ok">UP</span>' : '<span class="tag-wait">DOWN</span>')
+                          : (connected.has('sw2-printer') ? '<span class="tag-ok">UP</span>' : '<span class="tag-wait">Sin cable</span>')}</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      }
+
+      /* ---------- EVALUACIÓN Y ANIMACIÓN DE PING REAL ---------- */
+      function evaluatePing(targetIp) {
+        const ethOk = LINKS.filter(l => l.type === 'ethernet').every(l => connected.has(l.id));
+        if (!ethOk) return { ok: false, log: 'Error: Faltan cables Ethernet por conectar en la topología.' };
+        if (!pcCfg.ip || !pcCfg.gw) return { ok: false, log: 'Error: Configura primero la IP y Gateway en PC-OFICINA.' };
+        if (!rtr.powered || !rtr.g000Up || !rtr.g001Up || !rtr.g000Ip || !rtr.g001Ip) {
+          return { ok: false, log: `Pinging ${targetIp} with 32 bytes of data:\nRequest timed out.\n(Las interfaces Gig0/0/0 y Gig0/0/1 del ROUTER deben tener IP y "no shutdown")` };
+        }
+        if (targetIp === prCfg.ip && prCfg.ip && prCfg.gw) {
+          return {
+            ok: true,
+            log: `Pinging ${targetIp} with 32 bytes of data:\nReply from ${targetIp}: bytes=32 time=2ms TTL=127\nReply from ${targetIp}: bytes=32 time=1ms TTL=127\nPackets: Sent = 2, Received = 2, Lost = 0 (0% loss)`
+          };
+        }
+        if (targetIp === rtr.g000Ip) {
+          return { ok: true, log: `Pinging ${targetIp}:\nReply from ${targetIp}: bytes=32 time=1ms TTL=255` };
+        }
+        return { ok: false, log: `Pinging ${targetIp}:\nRequest timed out. (Verifica que IMPRESORA tenga IP ${targetIp} y Gateway 11.0.0.1)` };
+      }
+
+      function animatePingEnvelope() {
+        const env = $('#pingEnvelope');
+        const pts = [DEVICES.pc, DEVICES.sw1, DEVICES.router, DEVICES.sw2, DEVICES.printer];
+        let seg = 0, t = 0;
+        env.setAttribute('visibility', 'visible');
+        const iv = setInterval(() => {
+          t += 0.08;
+          if (t >= 1) { t = 0; seg++; }
+          if (seg >= pts.length - 1) {
+            clearInterval(iv);
+            env.setAttribute('visibility', 'hidden');
+            return;
+          }
+          const x = pts[seg].x + (pts[seg + 1].x - pts[seg].x) * t;
+          const y = pts[seg].y + (pts[seg + 1].y - pts[seg].y) * t;
+          env.setAttribute('transform', `translate(${x}, ${y})`);
+        }, 28);
+      }
+
+      $('#pingBtn').onclick = () => {
+        const res = evaluatePing(prCfg.ip || '11.0.0.2');
+        if (res.ok) {
+          animatePingEnvelope();
+          toast(`✔ Ping exitoso: ${pcCfg.ip} → ${prCfg.ip} (TTL=127)`);
+        } else {
+          toast('❌ ' + res.log.split('\n').pop());
+        }
+      };
+
+      /* ==========================================================================
+         ACTUALIZACIÓN GLOBAL DE LA INFOGRAFÍA
+         ========================================================================== */
+      function refreshAllUI() {
+        Object.keys(DEVICES).forEach(renderSlotContent);
+        renderLinksSVG();
+        renderActiveCliModal();
+
+        $('#devCounter').textContent = `${placed.size}/6`;
+        $('#cableCounter').textContent = `${connected.size}/5`;
+        $('#pMeta1').textContent = `${placed.size}/6 equipos · ${connected.size}/5 cables`;
+
+        $$('#cableList li').forEach(li => {
+          const ok = connected.has(li.dataset.link);
+          li.classList.toggle('ok', ok);
+          li.textContent = (ok ? '✔ ' : '○ ') + li.textContent.slice(2);
+        });
+
+        const allWired = placed.size === 6 && connected.size === 5;
+        $('#pingBtn').disabled = !allWired;
+
+        // Guía contextual sobre el lienzo
+        if (placed.size < 6) {
+          $('#canvasGuide').innerHTML = `<strong>Paso 1:</strong> Coloca los ${6 - placed.size} equipos restantes desde la izquierda.`;
+        } else if (connected.size < 5) {
+          $('#canvasGuide').innerHTML = `<strong>Paso 2:</strong> Conecta los cables faltantes (${connected.size}/5) seleccionando Ethernet o Consola.`;
+        } else if (!pcCfg.ip || !prCfg.ip) {
+          $('#canvasGuide').innerHTML = `<strong>Paso 3:</strong> En modo <em>Seleccionar</em>, haz clic en <strong>PC-OFICINA</strong> e <strong>IMPRESORA</strong> para asignar sus IPs.`;
+        } else if (!rtr.g000Up || !rtr.g001Up) {
+          $('#canvasGuide').innerHTML = `<strong>Paso 4:</strong> Haz clic en <strong>ROUTER</strong> o en <strong>User/Windows → Terminal</strong> para configurar R11 y levantar las interfaces.`;
+        } else {
+          $('#canvasGuide').innerHTML = `<strong>✔ Red configurada:</strong> Haz clic en <strong>ROUTER</strong> o <strong>User/Windows</strong> para practicar la recuperación en ROMMON, o prueba el Ping.`;
+        }
+
+        // Tabla de IPs
+        $('#tblPcIp').textContent = pcCfg.ip ? `${pcCfg.ip} / ${pcCfg.mask || '255.0.0.0'}` : 'Sin IP';
+        $('#tblPcSt').innerHTML = pcCfg.ip && pcCfg.gw ? '<span class="tag-ok">Configurada</span>' : '<span class="tag-wait">Pendiente</span>';
+
+        $('#tblG0Ip').textContent = rtr.g000Ip ? `${rtr.g000Ip} / ${rtr.g000Mask}` : 'Sin IP';
+        $('#tblG0St').innerHTML = rtr.g000Up ? '<span class="tag-ok">UP</span>' : '<span class="tag-wait">Shutdown</span>';
+
+        $('#tblG1Ip').textContent = rtr.g001Ip ? `${rtr.g001Ip} / ${rtr.g001Mask}` : 'Sin IP';
+        $('#tblG1St').innerHTML = rtr.g001Up ? '<span class="tag-ok">UP</span>' : '<span class="tag-wait">Shutdown</span>';
+
+        $('#tblPrIp').textContent = prCfg.ip ? `${prCfg.ip} / ${prCfg.mask || '255.0.0.0'}` : 'Sin IP';
+        $('#tblPrSt').innerHTML = prCfg.ip && prCfg.gw ? '<span class="tag-ok">Configurada</span>' : '<span class="tag-wait">Pendiente</span>';
+
+        // Memoria y Registro
+        const lblMode = $('#liveModeLbl');
+        lblMode.textContent = placed.has('router') ? (rtr.powered ? rtr.mode : 'APAGADO') : 'SIN ARMAR';
+        lblMode.className = rtr.mode === 'ROMMON' ? 'tag-warn' : (rtr.powered && placed.has('router') ? 'tag-ok' : 'tag-wait');
+
+        const boxNv = $('#boxNvram');
+        boxNv.className = 'mem-card';
+        if (rtr.nvram) {
+          $('#valNvram').textContent = `${rtr.nvram.hostname} (Guardada)`;
+          boxNv.classList.add(rtr.confreg === '0x2142' ? 'bypass' : 'ok');
+        } else {
+          $('#valNvram').textContent = 'Vacía';
+        }
+        $('#valRam').textContent = `${rtr.hostname} (${rtr.g000Up && rtr.g001Up ? '2 LAN UP' : 'Base'})`;
+        $('#boxRam').className = `mem-card ${placed.has('router') && rtr.powered ? 'ok' : ''}`;
+
+        const regBadge = $('#liveRegBadge');
+        regBadge.textContent = rtr.nextConfreg;
+        regBadge.className = `reg-code ${rtr.nextConfreg === '0x2142' ? 'tag-warn' : 'tag-ok'}`;
+        $('#regDescLive').textContent = rtr.nextConfreg === '0x2142' ? 'Ignora startup-config al arrancar' : 'Arranque normal (lee NVRAM)';
+
+        // Misión de 9 pasos
+        const checks = [
+          allWired,
+          Boolean(pcCfg.ip && pcCfg.gw && prCfg.ip && prCfg.gw),
+          rtr.hostname === 'R11' && rtr.g000Up && rtr.g001Up,
+          Boolean(rtr.nvram && rtr.lockedOnce),
+          rtr.mode === 'ROMMON' || rtr.rommonDone,
+          rtr.rommonDone,
+          rtr.restoredStartup,
+          rtr.newPassSet && rtr.nextConfreg === '0x2102',
+          rtr.recoveredDone
+        ];
+        let done = 0, firstIdx = -1;
+        $$('#missionUl li').forEach((li, idx) => {
+          li.classList.remove('done', 'now');
+          const d = li.querySelector('.m-dot');
+          if (checks[idx]) {
+            li.classList.add('done'); d.textContent = '✓'; done++;
+          } else {
+            d.textContent = String(idx + 1);
+            if (firstIdx === -1) { firstIdx = idx; li.classList.add('now'); }
+          }
+        });
+        $('#missionPct').textContent = `${Math.round((done / checks.length) * 100)}%`;
+
+        // Pills del encabezado
+        const pStates = [checks[0], checks[1] && checks[2], checks[5], checks[8]];
+        [1, 2, 3, 4].forEach((n, i) => {
+          const el = $(`#pPill${n}`);
+          el.classList.remove('done', 'active');
+          if (pStates[i]) el.classList.add('done');
+          else if (i === 0 || pStates[i - 1]) el.classList.add('active');
+        });
+      }
+
+      /* ---------- ACCIONES RAPIDAS Y AUTO-SIMULACION ---------- */
+      function autoWire(silent = false) {
+        Object.keys(DEVICES).forEach(id => {
+          placed.add(id);
+          $(`[data-dev="${id}"]`).classList.add('placed');
+        });
+        LINKS.forEach(l => connected.add(l.id));
+        setTool('select');
+        refreshAllUI();
+        if (!silent) toast('✔ Equipos y 5 cables armados. Haz clic en cada equipo para configurar.');
+      }
+
+      $('#autoWireBtn').onclick = () => autoWire(false);
+
+      $('#clearBoardBtn').onclick = () => {
+        clearInterval(bootTimer);
+        autoRunning = false;
+        placed.clear();
+        connected.clear();
+        pcCfg = { ip: '', mask: '', gw: '' };
+        prCfg = { ip: '', mask: '', gw: '' };
+        rtr = createFreshRouter();
+        cliHistoryLines = [
+          { text: 'Cisco IOS Software, C2900 Software (C2900-UNIVERSALK9-M), Version 15.1(4)M4', cls: 'l-sys' },
+          { text: 'Router de fábrica listo. Escribe "enable" para comenzar la configuración.', cls: 'l-ok' }
+        ];
+        $$('.pal-card').forEach(c => c.classList.remove('placed'));
+        setTool('select');
+        refreshAllUI();
+        toast('Mesa limpiada. Lista para armar desde cero.');
+      };
+
+      $('#quickOpenRouter').onclick = () => {
+        if (!placed.has('router')) placeDevice('router');
+        openDeviceModal('router', 'cli');
+      };
+      $('#quickOpenLaptop').onclick = () => {
+        if (!placed.has('laptop')) placeDevice('laptop');
+        openDeviceModal('laptop', 'desktop');
+      };
+
+      $('#jumpRommonBtn').onclick = () => {
+        clearInterval(bootTimer);
+        autoRunning = false;
+        autoWire(true);
+        pcCfg = { ip: '10.0.0.2', mask: '255.0.0.0', gw: '10.0.0.1' };
+        prCfg = { ip: '11.0.0.2', mask: '255.0.0.0', gw: '11.0.0.1' };
+        rtr = createFreshRouter();
+        Object.assign(rtr, {
+          hostname: 'R11', g000Ip: '10.0.0.1', g000Mask: '255.0.0.0', g000Up: true,
+          g001Ip: '11.0.0.1', g001Mask: '255.0.0.0', g001Up: true,
+          secretPass: 'clave123', consolePass: 'clave123', mode: 'PRIV'
+        });
+        saveNvram();
+        cliHistoryLines = [
+          { text: '✔ Topología armada, IPs de PC/Impresora listas y R11 preconfigurado.', cls: 'l-ok' },
+          { text: 'Paso 1: escribe "exit" para quedar bloqueado en Password: y luego apaga/enciende el router.', cls: 'l-warn' }
+        ];
+        refreshAllUI();
+        openDeviceModal('router', 'cli');
+      };
+
+      $('#autoAllBtn').onclick = async () => {
+        if (autoRunning) return;
+        $('#clearBoardBtn').click();
+        autoRunning = true;
+        const wait = (ms) => new Promise(r => setTimeout(r, ms));
+        toast('▶ Auto-simulación completa iniciada desde cero...');
+
+        for (const id of Object.keys(DEVICES)) {
+          if (!autoRunning) return;
+          placeDevice(id);
+          await wait(220);
+        }
+        for (const l of LINKS) {
+          if (!autoRunning) return;
+          connected.add(l.id);
+          refreshAllUI();
+          await wait(240);
+        }
+        setTool('select');
+        pcCfg = { ip: '10.0.0.2', mask: '255.0.0.0', gw: '10.0.0.1' };
+        prCfg = { ip: '11.0.0.2', mask: '255.0.0.0', gw: '11.0.0.1' };
+        refreshAllUI();
+        toast('✔ IPs configuradas en PC-OFICINA (10.0.0.2) e IMPRESORA (11.0.0.2)');
+        await wait(550);
+
+        openDeviceModal('router', 'cli');
+        const setupCmds = [
+          'enable', 'conf t', 'hostname R11',
+          'int g0/0/0', 'ip address 10.0.0.1 255.0.0.0', 'no shutdown', 'exit',
+          'int g0/0/1', 'ip address 11.0.0.1 255.0.0.0', 'no shutdown', 'exit',
+          'enable secret clave123', 'line console 0', 'password clave123', 'login', 'exit',
+          'do write', 'end', 'exit'
+        ];
+        for (const c of setupCmds) {
+          if (!autoRunning) return;
+          runIosCmd(c);
+          await wait(360);
+        }
+
+        toggleRouterPower(true);
+        await wait(1400);
+        if (!autoRunning) return;
+        sendBreak();
+        await wait(650);
+        runIosCmd('confreg 0x2142');
+        await wait(600);
+        runIosCmd('boot');
+        await wait(3000);
+
+        const recCmds = [
+          'enable', 'copy startup-config running-config', 'conf t',
+          'enable secret nueva2026', 'do write', 'config-register 0x2102',
+          'end', 'copy startup-config running-config', 'reload'
+        ];
+        for (const c of recCmds) {
+          if (!autoRunning) return;
+          runIosCmd(c);
+          await wait(520);
+        }
+        await wait(3000);
+        if (!autoRunning) return;
+        runIosCmd('nueva2026');
+        autoRunning = false;
+      };
+
+      /* ---------- EXTRAS: COPIAR, DECODIFICADOR, CAPTURAS Y RS-232 ---------- */
+      $$('.copy-btn').forEach(btn => {
+        btn.onclick = async () => {
+          try { await navigator.clipboard.writeText(btn.dataset.copy); } catch {}
+          const old = btn.textContent;
+          btn.textContent = '✓ Copiado';
+          btn.classList.add('copied');
+          toast('Comandos copiados al portapapeles');
+          setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+        };
+      });
+
+      let bitBypass = false;
+      $('#bitToggle').onclick = () => {
+        bitBypass = !bitBypass;
+        $('#bitHex').textContent = bitBypass ? '4' : '0';
+        $('#bitBin').textContent = bitBypass ? '0100 (Bit 6=1)' : '0000 (Bit 6=0)';
+        $('#decBadge').textContent = bitBypass ? '0x2142' : '0x2102';
+        $('#decBadge').className = bitBypass ? 'tag-warn' : 'tag-ok';
+        $('#decExplain').style.background = bitBypass ? 'var(--amber-soft)' : 'var(--green-soft)';
+        $('#decExplain').innerHTML = bitBypass
+          ? '<strong>0x2142 (Recuperación):</strong> El router ignora <code>startup-config</code> en NVRAM y arranca sin pedir contraseña.'
+          : '<strong>0x2102 (Normal):</strong> El router carga Cisco IOS y lee <code>startup-config</code> desde NVRAM (solicita contraseña).';
+      };
+
+      $$('[data-zoom]').forEach(card => {
+        card.onclick = () => {
+          openModalKind = 'image';
+          ptWinTitle.textContent = card.dataset.title;
+          ptTabs.innerHTML = '';
+          ptBody.innerHTML = `<img src="${card.dataset.zoom}" style="width:100%;border-radius:6px;border:1px solid var(--border);" />`;
+          ptModalBg.classList.add('open');
+        };
+      });
+
+      $('#openRs232Btn').onclick = () => {
+        openModalKind = 'specs';
+        ptWinTitle.textContent = 'Parámetros de Consola RS-232 y Atajos Break';
+        ptTabs.innerHTML = '';
+        ptBody.innerHTML = `
+          <p style="font-size:0.84rem;color:var(--text-sec);margin-bottom:12px;">
+            Para entrar a <strong>ROMMON</strong> se requiere conexión física por el puerto <code>Console</code> usando el cable celeste (Rollover) desde <code>User/Windows</code>.
+          </p>
+          <table class="ip-table" style="margin-bottom:14px;">
+            <thead><tr><th>Parámetro de Terminal</th><th>Valor Estándar</th></tr></thead>
+            <tbody>
+              <tr><td>Bits por segundo</td><td>9600</td></tr>
+              <tr><td>Bits de datos</td><td>8</td></tr>
+              <tr><td>Paridad / Parada / Flujo</td><td>None / 1 / None</td></tr>
+            </tbody>
+          </table>
+          <div style="padding:10px 12px;border-radius:6px;background:var(--amber-soft);font-size:0.82rem;">
+            <strong>Secuencia de interrupción (Break):</strong> Computadora: <kbd>Ctrl</kbd>+<kbd>Pausa</kbd> · Laptop: <kbd>Ctrl</kbd>+<kbd>Fn</kbd>+<kbd>P</kbd> · Simulador: botón <strong>⚡ Enviar Break</strong> o <kbd>Ctrl</kbd>+<kbd>B</kbd>.
+          </div>
+        `;
+        ptModalBg.classList.add('open');
+      };
+
+      /* ---------- INICIALIZACION ---------- */
+      rtr = createFreshRouter();
+      cliHistoryLines = [
+        { text: 'Cisco IOS Software, C2900 Software (C2900-UNIVERSALK9-M), Version 15.1(4)M4', cls: 'l-sys' },
+        { text: 'Router de fábrica listo. Escribe "enable" para comenzar la configuración.', cls: 'l-ok' }
+      ];
+      refreshAllUI();
+    })();
+  </script>
+</body>
+</html>
