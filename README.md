@@ -1,4 +1,5 @@
 # Recuperación de Contraseña en Router Cisco IOS - Simulador 
+URL: https://jchampi.github.io/Recuperar_Contrasenia_Router_Cisco/
 ![alt text](image.png)
 Simulador educativo interactiva en un solo archivo HTML (`index.html`) que simula un laboratorio completo de redes al estilo **Cisco Packet Tracer**: desde el armado físico/lógico de equipos y cables, la configuración inicial de direccionamiento IP y contraseñas, hasta el procedimiento de **recuperación de contraseña mediante modo ROMMON (`0x2142` → `0x2102`)**.
 
